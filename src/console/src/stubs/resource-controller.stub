@@ -1,4 +1,4 @@
-import type { Context } from "@bunvel/bunvel";
+import type { Context } from "@bunvel/framework";
 
 export class {{name}} {
   // Add your controller methods here

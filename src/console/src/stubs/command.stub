@@ -1,4 +1,4 @@
-import {Command} from "@bunvel/bunvel";
+import {Command} from "@bunvel/framework";
 
 class {{commandName}}Command extends Command {
   constructor() {

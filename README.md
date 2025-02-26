@@ -1,4 +1,4 @@
-# @bunvel/bunvel
+# @bunvel/framework
 
 To install dependencies:
 

@@ -1,5 +1,5 @@
-import type { Blueprint } from "@bunvel/bunvel";
-import { Migration } from "@bunvel/bunvel";
+import type { Blueprint } from "@bunvel/framework";
+import { Migration } from "@bunvel/framework";
 
 export default class {{className}} extends Migration {
   async up(): Promise<void> {

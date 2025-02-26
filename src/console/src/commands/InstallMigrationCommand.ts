@@ -1,5 +1,6 @@
+import { Logger } from "@bunvel/support";
 import { ConfigServiceProvider } from "../../../config";
-import { Application, Logger } from "../../../core";
+import { Application } from "../../../core";
 import { type Database, DatabaseServiceProvider } from "../../../database";
 import { Command } from "../command";
 

@@ -1,6 +1,7 @@
 import { join, resolve } from "path";
-import { Application, Logger } from "../../../core";
+import { Application } from "../../../core";
 
+import { Logger } from "@bunvel/support";
 import { ConfigServiceProvider } from "../../../config";
 import {
   type Database,

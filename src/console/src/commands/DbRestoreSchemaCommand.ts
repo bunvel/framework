@@ -1,7 +1,8 @@
+import { Logger } from "@bunvel/support";
 import { readFileSync } from "fs";
 import { join } from "path";
 import readline from "readline";
-import { Application, Config, Logger } from "../../../core";
+import { Application, Config } from "../../../core";
 import { DatabaseServiceProvider, type Database } from "../../../database";
 import { Command } from "../command";
 

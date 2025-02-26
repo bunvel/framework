@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "@bunvel/bunvel",
+      "name": "@bunvel/framework",
       "dependencies": {
         "bumpp": "^10.0.3",
         "chalk": "^5.4.1",
