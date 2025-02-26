@@ -1,0 +1,8 @@
+import type { Context } from "@bunvel/bunvel";
+
+export const {{middlewareName}}Middleware = async (
+  c: Context,
+  next: () => Promise<void>
+) => {
+  await next();
+}

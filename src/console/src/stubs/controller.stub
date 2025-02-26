@@ -1,0 +1,3 @@
+export class {{name}} {
+  // Add your controller methods here
+}

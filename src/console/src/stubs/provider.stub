@@ -1,0 +1,11 @@
+import { ServiceProvider } from "@bunvel/bunvel";
+
+export class {{providerName}}ServiceProvider extends ServiceProvider {
+ async register(): Promise<void> {
+    // Register services here
+  }
+
+ async boot(): Promise<void> {
+    // Initialize services here
+  }
+}

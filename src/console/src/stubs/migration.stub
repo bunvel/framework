@@ -1,0 +1,15 @@
+import type { Blueprint } from "@bunvel/bunvel";
+import { Migration } from "@bunvel/bunvel";
+
+export default class {{className}} extends Migration {
+  async up(): Promise<void> {
+    await this.schema.create('{{tableName}}', (table: Blueprint) => {
+      table.increments('id');
+      table.timestamps();
+    });
+  }
+
+  async down(): Promise<void> {
+    await this.schema.dropIfExists('{{tableName}}');
+  }
+}

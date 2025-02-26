@@ -1,0 +1,3 @@
+export enum {{enumName}} {
+  // Add enum values here
+}

@@ -1,0 +1,13 @@
+import {Command} from "@bunvel/bunvel";
+
+class {{commandName}}Command extends Command {
+  constructor() {
+    super("{{commandName}}", "Description of the command");
+  }
+
+  async handle(args: any = {}): Promise<void> {
+    // Implement command logic here
+  }
+}
+
+export default {{commandName}}Command;

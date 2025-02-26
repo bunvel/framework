@@ -1,0 +1,7 @@
+import { Model } from "@bunvel/bunvel";
+
+export class {{name}} extends Model {
+
+  public static tableName = "{{tableName}}";
+  
+}
