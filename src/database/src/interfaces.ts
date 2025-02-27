@@ -6,7 +6,7 @@ export interface Database {
 }
 
 export interface ConnectionConfig {
-  type: "mysql" | "sqlite" | "pg";
+  type: "mysql" | "sqlite" | "postgresql";
   // Add common configuration options
   [key: string]: any;
 }

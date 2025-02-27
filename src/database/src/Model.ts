@@ -5,8 +5,7 @@ import { DatabaseServiceProvider } from "./DatabaseServiceProvider";
 import type { ConnectionConfig } from "./interfaces";
 import { MetadataManager } from "./MetadataManager";
 import type { QueryBuilder } from "./QueryBuilder";
-
-type SupportedDatabaseTypes = "mysql" | "sqlite" | "pg";
+import { isValidDatabaseType } from "./types";
 
 export class Model {
   // Table name
@@ -260,6 +259,4 @@ export class Model {
   }
 }
 
-function isValidDatabaseType(type: string): type is SupportedDatabaseTypes {
-  return ["mysql", "sqlite", "pg"].includes(type);
-}
+

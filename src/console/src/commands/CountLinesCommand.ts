@@ -48,19 +48,23 @@ class CountLinesCommand extends Command {
   private getFiles(dir: string): { path: string }[] {
     const results: { path: string }[] = [];
     const list = fs.readdirSync(dir);
-
+  
     list.forEach((file) => {
       const filePath = path.join(dir, file);
       const stat = fs.statSync(filePath);
+  
+      // Ignore node_modules and other directories if needed
       if (stat.isDirectory()) {
+        if (file === "node_modules" || file === ".git") return; // Skip node_modules
         results.push(...this.getFiles(filePath));
       } else {
         results.push({ path: filePath });
       }
     });
-
+  
     return results;
   }
+  
 
   private countLines(filePath: string): number {
     const data = fs.readFileSync(filePath, "utf8");

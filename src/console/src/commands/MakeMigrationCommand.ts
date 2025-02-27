@@ -1,6 +1,7 @@
+import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Logger, pluralize } from "../../../support";
+import { Logger } from "../../../support";
 import { Command } from "../command";
 
 class MakeMigrationCommand extends Command {
@@ -79,7 +80,7 @@ class MakeMigrationCommand extends Command {
 
   private formatMigrationName(name: string): string {
     // Remove unwanted characters and convert to lowercase
-    name = name.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase();
+    name = Str.snakeCase(name).toLowerCase();
 
     // Check if the name starts with "create", "alter", or "add"
     const validPrefixes = ["create", "alter", "add", "modify"];
@@ -97,19 +98,19 @@ class MakeMigrationCommand extends Command {
 
   private getTableName(name: string): string {
     // Convert the name to lowercase
-    name = name.toLowerCase();
+    name = Str.snakeCase(name).toLowerCase();
 
     // Check if the name ends with '_table'
     if (name.endsWith("_table")) {
       // Extract the word before '_table'
       const matches = name.match(/_([a-z0-9]+)_table$/);
       if (matches && matches[1]) {
-        return pluralize(matches[1]);
+        return Str.plural(matches[1]);
       }
     }
 
     // If it's just 'User' or 'user' or doesn't follow the pattern
-    return pluralize(name);
+    return Str.plural(name);
   }
 
   private getStubFile(args: any): string {
@@ -124,9 +125,7 @@ class MakeMigrationCommand extends Command {
   }
 
   private toPascalCase(str: string): string {
-    return str
-      .replace(/(^\w|_\w)/g, (match) => match.replace(/_/, "").toUpperCase())
-      .replace(/_./g, (match) => match.charAt(1).toUpperCase());
+    return Str.pascalCase(str);
   }
 }
 

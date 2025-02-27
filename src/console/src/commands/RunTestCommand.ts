@@ -8,7 +8,7 @@ class RunTestCommand extends Command {
 
   async handle(): Promise<void> {
     try {
-      execSync("bun test", { stdio: "inherit" });
+      execSync("bun test", { stdio: "inherit" }); 
     } catch (error) {}
   }
 }

@@ -1,14 +1,8 @@
 import { type Context, Hono, type MiddlewareHandler } from "hono";
 import { RouterLoggerMiddleware } from "./RouterMiddleware";
+import type { Controller, HttpMethod, RouteHandler } from "./types";
 
-type HttpMethod = keyof Pick<
-  Hono,
-  "get" | "post" | "put" | "patch" | "delete" | "options"
->;
-type RouteHandler = (c: Context) => any | Promise<any>;
-interface Controller {
-  [key: string]: RouteHandler | any;
-}
+
 
 export class RouterService {
   private router: Hono;
@@ -32,6 +26,10 @@ export class RouterService {
 
     if (typeof response === "object") {
       return c.json(response); // Use c.json to return a JSON response
+    }
+
+    if (response instanceof Error) {
+      throw response; // If the response is an exception, rethrow it
     }
 
     throw new Error(`Unsupported response type: ${typeof response}`);

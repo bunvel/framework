@@ -45,6 +45,7 @@ class FindLargestFilesCommand extends Command {
       const filePath = path.join(dir, file);
       const stat = fs.statSync(filePath);
       if (stat.isDirectory()) {
+        if (file === "node_modules" || file === ".git") return; // Skip node_modules
         results.push(...this.getFiles(filePath));
       } else {
         results.push({ path: filePath, size: stat.size });

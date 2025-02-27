@@ -15,7 +15,7 @@ export class DatabaseAdapterFactory {
         return new MySQLAdapter();
       case "sqlite":
         return new SQLiteAdapter();
-      case "pg":
+      case "postgresql":
         return new PostgreSQLAdapter();
       default:
         throw new Error(`Unsupported database type: ${config.type}`);

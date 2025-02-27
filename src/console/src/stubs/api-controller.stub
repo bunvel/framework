@@ -1,24 +1,24 @@
 import type { Context } from "@bunvel/framework";
+import { Controller } from "./Controller";
 
-export class {{name}} {
-  // Add your API controller methods here
+export class {{name}} extends Controller {
   static async index({}:Context) {
-    // Implementation
+    throw new Error("Method not implemented.");
   }
 
   static async show({req}:Context) {
-    // Implementation
+    throw new Error("Method not implemented.");
   }
 
   static async store({req}:Context) {
-    // Implementation
+    throw new Error("Method not implemented.");
   }
 
   static async update({req}:Context) {
-    // Implementation
+    throw new Error("Method not implemented.");
   }
 
   static async destroy({req}:Context) {
-    // Implementation
+    throw new Error("Method not implemented.");
   }
 }

@@ -1,6 +1,7 @@
+import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Logger, pluralize } from "../../../support";
+import { Logger } from "../../../support";
 import { Command } from "../command";
 import MakeControllerCommand from "./MakeControllerCommand";
 import MakeMigrationCommand from "./MakeMigrationCommand";
@@ -70,15 +71,14 @@ class MakeModelCommand extends Command {
 
   // Format the model name (capitalize the first letter)
   private formatName(name: string): string {
-    return name.charAt(0).toUpperCase() + name.slice(1);
+    return Str.pascalCase(name);
   }
 
   // Format the table name using snake_case and pluralize it
   private formatTableName(name: string): string {
-    const snakeCaseName = name
-      .replace(/([a-z])([A-Z])/g, "$1_$2")
+    const snakeCaseName = Str.snakeCase(name)
       .toLowerCase();
-    return pluralize(snakeCaseName);
+    return Str.plural(snakeCaseName);
   }
 
   // Get the content of the stub file

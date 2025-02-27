@@ -1,3 +1,4 @@
+import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../support";
@@ -67,7 +68,7 @@ class MakeControllerCommand extends Command {
   }
 
   private formatName(name: string): string {
-    return name.charAt(0).toUpperCase() + name.slice(1) + "Controller";
+    return Str.pascalCase(name) + "Controller";
   }
 
   private getStubFile(isResource: boolean, isApi: boolean): string {

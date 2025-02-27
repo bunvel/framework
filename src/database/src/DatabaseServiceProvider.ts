@@ -2,12 +2,8 @@ import { Config } from "../../core/src/Facades/Config";
 import { ServiceProvider } from "../../core/src/ServiceProvider";
 import { DatabaseAdapterFactory } from "./DatabaseFactory";
 import type { ConnectionConfig } from "./interfaces";
+import { isValidDatabaseType } from "./types";
 
-type SupportedDatabaseTypes = "mysql" | "sqlite" | "pg";
-
-function isValidDatabaseType(type: string): type is SupportedDatabaseTypes {
-  return ["mysql", "sqlite", "pg"].includes(type);
-}
 
 export class DatabaseServiceProvider extends ServiceProvider {
   async register(): Promise<void> {

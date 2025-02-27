@@ -1,3 +1,4 @@
+import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../support";
@@ -50,7 +51,7 @@ class MakeInterfaceCommand extends Command {
   }
 
   private formatName(name: string): string {
-    return `${name.charAt(0).toUpperCase() + name.slice(1)}`;
+    return Str.pascalCase(name);
   }
 
   private getStubContent(stubFileName: string, interfaceName: string): string {
