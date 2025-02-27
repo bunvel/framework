@@ -1,5 +1,29 @@
 # @bunvel/framework
 
+## 0.4.0
+
+### Minor Changes
+
+- Introduced **Path** and **asset()** helpers for seamless access to framework directories and asset URLs:
+
+  ### ✅ Path Utility Methods:
+
+  - Access key framework directories with intuitive methods:
+    - `appPath()` – Path to the application directory.
+    - `basePath()` – Path to the project root.
+    - `configPath()` – Path to the configuration directory.
+    - `databasePath()` – Path to the database directory.
+    - Supports custom paths via environment variables.
+
+  ### ✅ URL & Asset Helpers:
+
+  - `assets()` – Generate URLs for static assets.
+    - Auto-switches between HTTP and HTTPS based on `APP_URL`.
+    - Example: `assets('img/logo.png')`.
+  - `baseUrl()` – Retrieve the application’s base URL.
+
+  Simplified path resolution and asset management for a better developer experience! 🚀
+
 ## 0.3.0
 
 ### Minor Changes

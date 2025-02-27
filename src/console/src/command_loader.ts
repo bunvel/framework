@@ -1,3 +1,4 @@
+import { appPath } from "@bunvel/support/helpers";
 import { existsSync, readdirSync } from "fs";
 import { join } from "path";
 import type { Command } from "./command";
@@ -13,7 +14,7 @@ export class CommandLoader {
       commands
     );
 
-    const userCommandPath = join(process.cwd(), "app", "commands");
+    const userCommandPath = appPath("commands");
     if (existsSync(userCommandPath)) {
       await this.loadCommandsFromDirectory(userCommandPath, commands);
     }

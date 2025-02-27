@@ -3,7 +3,6 @@ import { join } from "path";
 import { Application, Config } from "../../../core";
 import { type Database, DatabaseServiceProvider } from "../../../database";
 import { Command } from "../command";
-import { generateTimestampedFilename } from "../get_timestamp";
 
 class DbDumpSchemaCommand extends Command {
   constructor() {
@@ -48,7 +47,7 @@ class DbDumpSchemaCommand extends Command {
 
       const dumpPath = join(
         databaseDir,
-        generateTimestampedFilename("backup", "sql")
+        this.generateTimestampedFilename("backup", "sql")
       );
       writeFileSync(dumpPath, schemaDump);
       console.log(`Schema dumped to ${dumpPath}`);
@@ -152,6 +151,22 @@ class DbDumpSchemaCommand extends Command {
       console.error("Database connection failed:", error);
       return null;
     }
+  }
+
+  private generateTimestampedFilename(
+    prefix: string = "file",
+    extension: string = "txt"
+  ) {
+    const now = new Date();
+    const timestamp =
+      now.getFullYear() +
+      ("0" + (now.getMonth() + 1)).slice(-2) +
+      ("0" + now.getDate()).slice(-2) +
+      ("0" + now.getHours()).slice(-2) +
+      ("0" + now.getMinutes()).slice(-2) +
+      ("0" + now.getSeconds()).slice(-2);
+
+    return `${prefix}_${timestamp}.${extension}`;
   }
 }
 

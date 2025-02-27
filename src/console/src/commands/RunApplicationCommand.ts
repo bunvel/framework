@@ -7,10 +7,7 @@ class RunApplicationCommand extends Command {
     super("serve", "Run the application");
   }
 
-  async handle(args: {
-    positionals: string[];
-    options: Record<string, any>;
-  }): Promise<void> {
+  async handle(): Promise<void> {
     try {
       execSync("bun run --watch ./index.ts", { stdio: "inherit" });
     } catch (error: any) {

@@ -1,3 +1,4 @@
+import { configPath } from "@bunvel/support/helpers";
 import { readdir } from "node:fs/promises";
 
 import * as path from "path";
@@ -7,7 +8,7 @@ type ConfigData = { [key: string]: any };
 export class ConfigurationService {
   private configs: ConfigData = {};
   private cache: ConfigData = {};
-  private configPath = process.cwd() + "/config";
+  private path = configPath();
 
   // Load all configuration files
   async loadConfigs(): Promise<void> {
@@ -16,15 +17,15 @@ export class ConfigurationService {
     }
 
     try {
-      const files = await readdir(this.configPath);
-      const configFiles = files.filter(
+        const files = await readdir(this.path);
+        const configFiles = files.filter(
         (file) => file.endsWith(".ts") || file.endsWith(".js")
       );
 
       await Promise.all(
         configFiles.map(async (file) => {
           const name = path.basename(file, path.extname(file));
-          const filePath = path.join(this.configPath, file);
+          const filePath = path.join(this.path, file);
           const module = await import(filePath);
 
           // Check if default export is a function

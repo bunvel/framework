@@ -1,4 +1,3 @@
-import { execSync } from "child_process";
 import { Command } from "../command";
 
 class RunTestCommand extends Command {
@@ -8,7 +7,7 @@ class RunTestCommand extends Command {
 
   async handle(): Promise<void> {
     try {
-      execSync("bun test", { stdio: "inherit" }); 
+      Bun.spawn(["bun", "test"]);
     } catch (error) {}
   }
 }
