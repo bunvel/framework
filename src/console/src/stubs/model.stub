@@ -1,6 +1,6 @@
 import { Model } from "@bunvel/framework";
 
-export class {{name}} extends Model {
+export default class {{name}} extends Model {
 
   public static tableName = "{{tableName}}";
   

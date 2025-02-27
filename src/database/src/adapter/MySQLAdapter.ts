@@ -1,6 +1,6 @@
 import { Logger } from "@bunvel/support";
 
-import type { ConnectionConfig, Database } from "./interfaces";
+import type { ConnectionConfig, Database } from "../interfaces";
 
 export class MySQLAdapter implements Database {
   checkDependencies(): void {

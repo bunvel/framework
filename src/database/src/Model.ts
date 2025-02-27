@@ -4,7 +4,7 @@ import { DatabaseAdapterFactory } from "./DatabaseFactory";
 import { DatabaseServiceProvider } from "./DatabaseServiceProvider";
 import type { ConnectionConfig } from "./interfaces";
 import { MetadataManager } from "./MetadataManager";
-import type { QueryBuilder } from "./QueryBuilder";
+import type { QueryBuilder } from "./query-builder/QueryBuilder";
 import { isValidDatabaseType } from "./types";
 
 export class Model {
@@ -258,5 +258,3 @@ export class Model {
     return MetadataManager.getColumnMetadata(this.tableName);
   }
 }
-
-

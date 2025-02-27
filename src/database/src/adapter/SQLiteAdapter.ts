@@ -1,4 +1,4 @@
-import type { ConnectionConfig, Database } from "./interfaces";
+import type { ConnectionConfig, Database } from "../interfaces";
 
 export class SQLiteAdapter implements Database {
   checkDependencies(): void {

@@ -1,8 +1,9 @@
 import type { Context } from "@bunvel/framework";
 
-export const {{middlewareName}}Middleware = async (
-  c: Context,
-  next: () => Promise<void>
-) => {
+const {{interfaceName}} = async (c: Context, next: () => Promise<void>) => {
+  console.log("{{interfaceName}}");
   await next();
-}
+};
+
+export default {{interfaceName}};
+

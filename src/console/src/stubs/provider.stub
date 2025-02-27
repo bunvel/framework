@@ -1,6 +1,6 @@
 import { ServiceProvider } from "@bunvel/framework";
 
-export class {{providerName}}ServiceProvider extends ServiceProvider {
+export default class {{providerName}}ServiceProvider extends ServiceProvider {
  async register(): Promise<void> {
     // Register services here
   }

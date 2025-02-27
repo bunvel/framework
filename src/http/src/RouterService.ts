@@ -2,8 +2,6 @@ import { type Context, Hono, type MiddlewareHandler } from "hono";
 import { RouterLoggerMiddleware } from "./RouterMiddleware";
 import type { Controller, HttpMethod, RouteHandler } from "./types";
 
-
-
 export class RouterService {
   private router: Hono;
   private routeNames: Map<string, string>;
@@ -16,23 +14,35 @@ export class RouterService {
   }
 
   private handleResponse(c: Context, response: any): Response {
-    if (response instanceof Response) {
-      return response; // If the response is already a Response object, return it directly
-    }
+    try {
+      // If the response is already a Response object, return it directly
+      if (response instanceof Response) {
+        return response;
+      }
 
-    if (typeof response === "string") {
-      return c.text(response); // Use c.text to return a plain text response
-    }
+      // Handle undefined, null, or empty responses (204 No Content)
+      if (response == null) {
+        return new Response(null, { status: 204 });
+      }
 
-    if (typeof response === "object") {
-      return c.json(response); // Use c.json to return a JSON response
-    }
+      // Return plain text response
+      if (typeof response === "string") {
+        return c.text(response);
+      }
 
-    if (response instanceof Error) {
-      throw response; // If the response is an exception, rethrow it
-    }
+      // Return JSON response
+      if (typeof response === "object") {
+        return c.json(response);
+      }
 
-    throw new Error(`Unsupported response type: ${typeof response}`);
+      // Handle unsupported response types
+      console.error(`Unsupported response type: ${typeof response}`);
+      return new Response("Internal Server Error", { status: 500 });
+    } catch (error) {
+      // Handle errors during response processing
+      console.error("Error handling response:", error);
+      return new Response("Internal Server Error", { status: 500 });
+    }
   }
 
   private use(middlewares: MiddlewareHandler[]): this {

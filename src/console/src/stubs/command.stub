@@ -1,6 +1,6 @@
 import {Command} from "@bunvel/framework";
 
-class {{commandName}}Command extends Command {
+export default class {{commandName}}Command extends Command {
   constructor() {
     super("{{commandName}}", "Description of the command");
   }
@@ -9,5 +9,3 @@ class {{commandName}}Command extends Command {
     // Implement command logic here
   }
 }
-
-export default {{commandName}}Command;

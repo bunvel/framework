@@ -1,5 +1,5 @@
 // PostgreSQLQueryBuilder.ts
-import { PostgreSQLAdapter } from "./PostgreSQLAdapter";
+import { PostgreSQLAdapter } from "../adapter/PostgreSQLAdapter";
 import type { QueryBuilder } from "./QueryBuilder";
 
 export class PostgreSQLQueryBuilder implements QueryBuilder {

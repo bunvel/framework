@@ -1,7 +1,7 @@
 import type { Context } from "@bunvel/framework";
-import { Controller } from "./Controller";
+import Controller from "./controller";
 
-export class {{name}} extends Controller {
+export default class {{name}} extends Controller {
   static async index({}:Context) {
     throw new Error("Method not implemented.");
   }

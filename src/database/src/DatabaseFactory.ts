@@ -1,12 +1,12 @@
 // DatabaseAdapterFactory.ts
+import { MySQLAdapter } from "./adapter/MySQLAdapter.ts";
+import { PostgreSQLAdapter } from "./adapter/PostgreSQLAdapter.ts";
+import { SQLiteAdapter } from "./adapter/SQLiteAdapter.ts";
 import type { ConnectionConfig, Database } from "./interfaces.ts";
-import { MySQLAdapter } from "./MySQLAdapter";
-import { MySQLQueryBuilder } from "./MySQLQueryBuilder.ts";
-import { PostgreSQLAdapter } from "./PostgreSQLAdapter";
-import { PostgreSQLQueryBuilder } from "./PostgreSQLQueryBuilder.ts";
-import type { QueryBuilder } from "./QueryBuilder.ts";
-import { SQLiteAdapter } from "./SQLiteAdapter";
-import { SQLiteQueryBuilder } from "./SQLiteQueryBuilder.ts";
+import { MySQLQueryBuilder } from "./query-builder/MySQLQueryBuilder.ts.ts";
+import { PostgreSQLQueryBuilder } from "./query-builder/PostgreSQLQueryBuilder.ts";
+import type { QueryBuilder } from "./query-builder/QueryBuilder.ts";
+import { SQLiteQueryBuilder } from "./query-builder/SQLiteQueryBuilder.ts";
 
 export class DatabaseAdapterFactory {
   static createAdapter(config: ConnectionConfig): Database {

@@ -1,3 +1,5 @@
-export class {{name}} {
+import Controller from "./controller";
+
+export default class {{name}} extends Controller {
   // Add your controller methods here
 }
