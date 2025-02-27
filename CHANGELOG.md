@@ -1,5 +1,19 @@
 # @bunvel/framework
 
+## 0.5.0
+
+### Added
+
+- Extended all controllers with the default `Controller` class.
+
+### Changed
+
+- Updated all stubs to use `export default` syntax.
+
+### Fixed
+
+- Fixed route responses to handle `null` returns correctly.
+
 ## 0.4.0
 
 ### Minor Changes
