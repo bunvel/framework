@@ -1,9 +1,8 @@
-import { Config } from "../../core/src/Facades/Config";
-import { ServiceProvider } from "../../core/src/ServiceProvider";
+import { ServiceProvider } from "@bunvel/core";
+import { Config } from "@bunvel/facade";
 import { DatabaseAdapterFactory } from "./DatabaseFactory";
 import type { ConnectionConfig } from "./interfaces";
 import { isValidDatabaseType } from "./types";
-
 
 export class DatabaseServiceProvider extends ServiceProvider {
   async register(): Promise<void> {

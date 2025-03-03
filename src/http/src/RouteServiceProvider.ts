@@ -1,7 +1,7 @@
+import { ServiceProvider, type Application } from "@bunvel/core";
 import * as fs from "fs/promises";
 import { Hono } from "hono";
 import * as path from "path";
-import { ServiceProvider, type Application } from "../../core";
 
 export class RouteServiceProvider extends ServiceProvider {
   private router: Hono;

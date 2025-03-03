@@ -1,5 +1,6 @@
-import { ConfigServiceProvider } from "../../config";
-import { Application, Config } from "../../core";
+import { ConfigServiceProvider } from "@bunvel/config";
+import { Application } from "@bunvel/core";
+import { Config } from "@bunvel/facade";
 import { DatabaseAdapterFactory } from "./DatabaseFactory";
 import { DatabaseServiceProvider } from "./DatabaseServiceProvider";
 import type { ConnectionConfig } from "./interfaces";

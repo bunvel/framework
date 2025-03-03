@@ -1,6 +1,6 @@
 {
   "name": "@bunvel/framework",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Bunvel - Bun framework inspired by Laravel",
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -11,10 +11,18 @@
     "Bun"
   ],
   "author": "Aniket Khote",
+  "publisher": "@bunvel/framework",
+  "homepage": "https://github.com/bunvel/framework",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bunvel/framework"
+  },
+  "license": "MIT",
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "test": "bun test",
-    "release": "bunx changeset version && git add . && git commit -m 'chore: release' && git push && bunx changeset publish"
+    "changeset": "bunx changeset && bunx changeset version && git add . && git commit -m 'chore: release 0.6.0' && git push",
+    "release": "bunx changeset publish"
   },
   "exports": {
     ".": {
@@ -36,6 +44,5 @@
   },
   "engines": {
     "bun": ">=1.2.0"
-  },
-  "license": "MIT"
+  }
 }

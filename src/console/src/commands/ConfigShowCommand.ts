@@ -1,5 +1,5 @@
+import { ConfigurationService } from "@bunvel/config";
 import { Logger } from "@bunvel/log";
-import { ConfigurationService } from "../../../config";
 import { CLIFormatter } from "../cli_formatter";
 import { Command } from "../command";
 

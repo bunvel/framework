@@ -1,5 +1,15 @@
 # @bunvel/framework
 
+## 0.7.0
+
+### Minor Changes
+
+- Fixed import issues
+
+## 0.6.0
+
+- Refactored and removed unwanted commands.
+
 ## 0.5.0
 
 ### Added

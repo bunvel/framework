@@ -1,7 +1,7 @@
+import { ConfigServiceProvider } from "@bunvel/config";
+import { Application } from "@bunvel/core";
+import { type Database, DatabaseServiceProvider } from "@bunvel/database";
 import { Logger } from "@bunvel/log";
-import { ConfigServiceProvider } from "../../../config";
-import { Application } from "../../../core";
-import { type Database, DatabaseServiceProvider } from "../../../database";
 import { Command } from "../command";
 import InstallMigrationCommand from "./InstallMigrationCommand";
 import MigrateCommand from "./MigrateCommand";

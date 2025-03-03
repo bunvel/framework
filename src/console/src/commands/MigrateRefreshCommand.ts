@@ -1,14 +1,14 @@
+import { Application } from "@bunvel/core";
 import { join, resolve } from "path";
-import { Application } from "../../../core";
 
-import { Logger } from "@bunvel/log";
-import { ConfigServiceProvider } from "../../../config";
+import { ConfigServiceProvider } from "@bunvel/config";
 import {
   type Database,
   DatabaseServiceProvider,
   Migration,
   Schema,
-} from "../../../database";
+} from "@bunvel/database";
+import { Logger } from "@bunvel/log";
 import { Command } from "../command";
 import MigrateCommand from "./MigrateCommand";
 

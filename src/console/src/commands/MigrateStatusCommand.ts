@@ -1,11 +1,11 @@
+import { Application } from "@bunvel/core";
 import Table from "cli-table3";
 import { readdirSync } from "fs";
 import { join } from "path";
-import { Application } from "../../../core";
 
+import { ConfigServiceProvider } from "@bunvel/config";
+import { type Database, DatabaseServiceProvider } from "@bunvel/database";
 import { Logger } from "@bunvel/log";
-import { ConfigServiceProvider } from "../../../config";
-import { type Database, DatabaseServiceProvider } from "../../../database";
 import { Command } from "../command";
 
 class MigrateStatusCommand extends Command {
