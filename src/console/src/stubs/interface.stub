@@ -1,3 +1,0 @@
-export default interface {{interfaceName}} {
-  // Define your interface here
-}

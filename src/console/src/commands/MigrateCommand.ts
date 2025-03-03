@@ -1,4 +1,4 @@
-import { Logger } from "@bunvel/support";
+import { Logger } from "@bunvel/log";
 import { readdirSync } from "fs";
 import { join, resolve } from "path";
 import { ConfigServiceProvider } from "../../../config";

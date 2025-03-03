@@ -1,7 +1,7 @@
+import { Logger } from "@bunvel/log";
 import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Logger } from "../../../support";
 import { Command } from "../command";
 import MakeControllerCommand from "./MakeControllerCommand";
 import MakeMigrationCommand from "./MakeMigrationCommand";
@@ -76,8 +76,7 @@ class MakeModelCommand extends Command {
 
   // Format the table name using snake_case and pluralize it
   private formatTableName(name: string): string {
-    const snakeCaseName = Str.snakeCase(name)
-      .toLowerCase();
+    const snakeCaseName = Str.snakeCase(name).toLowerCase();
     return Str.plural(snakeCaseName);
   }
 

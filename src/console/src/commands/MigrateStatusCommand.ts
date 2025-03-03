@@ -3,7 +3,7 @@ import { readdirSync } from "fs";
 import { join } from "path";
 import { Application } from "../../../core";
 
-import { Logger } from "@bunvel/support";
+import { Logger } from "@bunvel/log";
 import { ConfigServiceProvider } from "../../../config";
 import { type Database, DatabaseServiceProvider } from "../../../database";
 import { Command } from "../command";

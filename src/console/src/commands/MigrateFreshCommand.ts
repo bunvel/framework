@@ -1,4 +1,4 @@
-import { Logger } from "@bunvel/support";
+import { Logger } from "@bunvel/log";
 import { ConfigServiceProvider } from "../../../config";
 import { Application } from "../../../core";
 import { type Database, DatabaseServiceProvider } from "../../../database";

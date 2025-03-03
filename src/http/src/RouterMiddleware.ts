@@ -1,4 +1,4 @@
-import { Logger } from "@bunvel/support";
+import { Logger } from "@bunvel/log";
 import type { Context } from "hono";
 
 const getConsoleWidth = (): number => {

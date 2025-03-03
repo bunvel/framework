@@ -1,9 +1,10 @@
+import { ConfigServiceProvider } from "@bunvel/config";
+import { type ServiceProvider } from "@bunvel/core";
+import { DatabaseServiceProvider } from "@bunvel/database";
+import { Config } from "@bunvel/facade";
+import { RouteServiceProvider } from "@bunvel/http";
+import { Logger } from "@bunvel/log";
 import type { Hono } from "hono";
-import { RouteServiceProvider } from "../..";
-import { ConfigServiceProvider } from "../../config";
-import { type ServiceProvider, Config } from "../../core";
-import { DatabaseServiceProvider } from "../../database";
-import { Logger } from "../../support/Logger/Logger";
 
 type ServiceConstructor<T> = () => T;
 

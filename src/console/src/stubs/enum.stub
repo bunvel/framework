@@ -1,3 +1,0 @@
-export default enum {{enumName}} {
-  // Add enum values here
-}

@@ -23,17 +23,16 @@
     }
   },
   "dependencies": {
-    "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "hono": "^4.7.2"
   },
   "devDependencies": {
     "@changesets/cli": "^2.28.1",
     "@types/bun": "latest",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.2"
   },
   "peerDependencies": {
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.2"
   },
   "engines": {
     "bun": ">=1.2.0"
