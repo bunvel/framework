@@ -1,5 +1,11 @@
 # @bunvel/framework
 
+## 0.8.1
+
+### Patch Changes
+
+- Fixed chalk issue
+
 ## 0.8.0
 
 ### Minor Changes
