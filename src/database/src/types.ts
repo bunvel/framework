@@ -1,7 +1,5 @@
-export type SupportedDatabaseTypes = "mysql" | "sqlite" | "postgresql";
+export type SupportedDatabase = "mysql" | "sqlite" | "postgresql";
 
-export function isValidDatabaseType(
-  type: string
-): type is SupportedDatabaseTypes {
+export function isValidDatabase(type: string): type is SupportedDatabase {
   return ["mysql", "sqlite", "postgresql"].includes(type);
 }

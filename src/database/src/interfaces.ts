@@ -1,4 +1,5 @@
 export interface Database {
+  driver: "sqlite" | "postgresql" | "mysql";
   connect(config: ConnectionConfig): Promise<void>;
   disconnect(): Promise<void>;
   query(sql: string, params?: any[]): Promise<any>;

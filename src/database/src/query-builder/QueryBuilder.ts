@@ -1,20 +1,64 @@
+/**
+ * Base QueryBuilder interface (common methods).
+ */
 export interface QueryBuilder {
-  table(tableName: string): QueryBuilder;
-  select(columns: string[]): QueryBuilder;
-  where(column: string, operator: string, value: any): QueryBuilder;
-  orWhere(column: string, operator: string, value: any): QueryBuilder;
-  join(
-    tableName: string,
-    column1: string,
-    operator: string,
-    column2: string
-  ): QueryBuilder;
-  orderBy(column: string, direction: "asc" | "desc"): QueryBuilder;
-  limit(limit: number): QueryBuilder;
-  offset(offset: number): QueryBuilder;
-  get(): Promise<any>;
-  first(): Promise<any>;
-  insert(data: object): Promise<void>;
-  update(data: object): Promise<void>;
+  /**
+   * Set the table to query.
+   */
+  table(tableName: string): this;
+
+  /**
+   * Select specific columns from the table.
+   */
+  select(columns: string[]): this;
+
+  /**
+   * Add WHERE clause to the query.
+   */
+  where(column: string, operator: string, value: any): this;
+
+  /**
+   * Add OR WHERE clause to the query.
+   */
+  orWhere(column: string, operator: string, value: any): this;
+
+  /**
+   * Add ORDER BY clause.
+   */
+  orderBy(column: string, direction?: "asc" | "desc"): this;
+
+  /**
+   * Set result limit.
+   */
+  limit(limit: number): this;
+
+  /**
+   * Set offset for paginated results.
+   */
+  offset(offset: number): this;
+
+  /**
+   * Execute query and return multiple rows.
+   */
+  get<T = any>(): Promise<T[]>;
+
+  /**
+   * Execute query and return the first row.
+   */
+  first<T = any>(): Promise<T | null>;
+
+  /**
+   * Insert data into the database.
+   */
+  insert(data: Record<string, any> | Record<string, any>[]): Promise<void>;
+
+  /**
+   * Update records in the database.
+   */
+  update(data: Record<string, any>): Promise<void>;
+
+  /**
+   * Delete records from the database.
+   */
   delete(): Promise<void>;
 }

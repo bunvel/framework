@@ -1,5 +1,6 @@
 import { ConfigServiceProvider } from "@bunvel/config";
 import { Application } from "@bunvel/core";
+import { Config } from "@bunvel/facade";
 import { Logger } from "@bunvel/log";
 import { readdirSync } from "fs";
 import { join, resolve } from "path";
@@ -83,12 +84,23 @@ class MigrateCommand extends Command {
     migrationFile: string,
     batchNumber: number
   ): Promise<void> {
-    const query = `
-      INSERT INTO migrations (migration, batch) 
-      VALUES (?, ?) 
-      ON DUPLICATE KEY UPDATE batch = VALUES(batch)
+    const database = await Config.get("database.default");
+
+    const sql =
+      database == "postgresql"
+        ? `
+      INSERT INTO migrations (migration, batch)
+      VALUES ($1, $2)
+      ON CONFLICT (migration) 
+      DO UPDATE SET batch = EXCLUDED.batch;
+    `
+        : `
+      INSERT INTO migrations (migration, batch)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE batch = VALUES(batch);
     `;
-    await this.connection!.query(query, [migrationFile, batchNumber]);
+
+    await this.connection!.query(sql, [migrationFile, batchNumber]);
   }
 
   private async loadMigrationClass(

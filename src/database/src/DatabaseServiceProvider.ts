@@ -1,39 +1,52 @@
-import { ServiceProvider } from "@bunvel/core";
-import { Config } from "@bunvel/facade";
+import { Logger } from "@bunvel/log";
+import { ServiceProvider } from "../../core/src/ServiceProvider";
+import { Config } from "../../facade/src/Config";
 import { DatabaseAdapterFactory } from "./DatabaseFactory";
-import type { ConnectionConfig } from "./interfaces";
-import { isValidDatabaseType } from "./types";
+import type { ConnectionConfig, Database } from "./interfaces";
+import { isValidDatabase } from "./types";
 
 export class DatabaseServiceProvider extends ServiceProvider {
   async register(): Promise<void> {
     this.app.singleton("database", async () => {
-      const dbType = await Config.string("database.default");
+      try {
+        const dbType = await Config.string("database.default");
 
-      if (!isValidDatabaseType(dbType)) {
-        throw new Error(`Unsupported database type: ${dbType}`);
+        if (!isValidDatabase(dbType)) {
+          Logger.error(`Unsupported database: ${dbType}`);
+          return;
+        }
+
+        const dbConfig = await Config.get<Omit<ConnectionConfig, "type">>(
+          `database.connections.${dbType}`
+        );
+
+        if (!dbConfig) {
+          Logger.error(`Database configuration for "${dbType}" not found`);
+          return;
+        }
+
+        const fullConfig: ConnectionConfig = {
+          ...dbConfig,
+          type: dbType,
+        };
+
+        const adapter = DatabaseAdapterFactory.createAdapter(fullConfig);
+        await adapter.connect(fullConfig);
+
+        return adapter;
+      } catch (error) {
+        Logger.error("[Database] Connection failed:", error);
+        throw error;
       }
-
-      const dbConfig = await Config.get<Omit<ConnectionConfig, "type">>(
-        `database.connections.${dbType}`
-      );
-
-      if (!dbConfig) {
-        throw new Error("Database configuration not found");
-      }
-
-      const fullConfig: ConnectionConfig = {
-        ...dbConfig,
-        type: dbType,
-      };
-
-      const adapter = DatabaseAdapterFactory.createAdapter(fullConfig);
-      await adapter.connect(fullConfig);
-
-      return adapter;
     });
   }
 
   async boot(): Promise<void> {
-    await this.app.make("database");
+    try {
+      await this.app.make<Database>("database");
+    } catch (error) {
+      Logger.error("[Database] Booting failed:", error);
+      throw error;
+    }
   }
 }

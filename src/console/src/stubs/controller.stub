@@ -1,4 +1,4 @@
-import Controller from "./controller";
+import Controller from "@controller/controller";
 
 export default class {{name}} extends Controller {
   // Add your controller methods here

@@ -1,76 +1,5 @@
-class ForeignKeyBuilder implements ForeignKeyDefinition {
-  private referencedColumn?: string;
-  private referencedTable?: string;
-  private onDeleteAction?: string;
-  private onUpdateAction?: string;
-
-  constructor(public column: string) {}
-
-  referencesColumn(column: string): this {
-    this.referencedColumn = column;
-    return this;
-  }
-
-  onTable(table: string): this {
-    this.referencedTable = table;
-    return this;
-  }
-
-  onDeleteCascade(): this {
-    this.onDeleteAction = "CASCADE";
-    return this;
-  }
-
-  onDeleteSetNull(): this {
-    this.onDeleteAction = "SET NULL";
-    return this;
-  }
-
-  onDeleteRestrict(): this {
-    this.onDeleteAction = "RESTRICT";
-    return this;
-  }
-
-  onDeleteNoAction(): this {
-    this.onDeleteAction = "NO ACTION";
-    return this;
-  }
-
-  onUpdateCascade(): this {
-    this.onUpdateAction = "CASCADE";
-    return this;
-  }
-
-  onUpdateSetNull(): this {
-    this.onUpdateAction = "SET NULL";
-    return this;
-  }
-
-  onUpdateRestrict(): this {
-    this.onUpdateAction = "RESTRICT";
-    return this;
-  }
-
-  onUpdateNoAction(): this {
-    this.onUpdateAction = "NO ACTION";
-    return this;
-  }
-
-  toSQL(): string {
-    if (!this.referencedColumn || !this.referencedTable) {
-      throw new Error("Foreign key must specify referenced column and table");
-    }
-
-    let sql = `FOREIGN KEY (${this.column}) REFERENCES ${this.referencedTable}(${this.referencedColumn})`;
-    if (this.onDeleteAction) {
-      sql += `ON DELETE ${this.onDeleteAction}`;
-    }
-    if (this.onUpdateAction) {
-      sql += `ON UPDATE ${this.onUpdateAction}`;
-    }
-    return sql;
-  }
-}
+// Blueprint ORM for multiple database support
+// Supports MySQL, PostgreSQL, SQLite
 
 interface ColumnDefinition {
   name: string;
@@ -90,242 +19,210 @@ interface IndexDefinition {
 
 interface ForeignKeyDefinition {
   column: string;
-  toSQL(): string;
+  references: string;
+  on: string;
+  onDelete?: string;
+  onUpdate?: string;
+}
+
+class ForeignKeyBuilder {
+  private foreignKey: ForeignKeyDefinition;
+
+  constructor(column: string) {
+    this.foreignKey = { column, references: "", on: "" };
+  }
+
+  references(column: string): this {
+    this.foreignKey.references = column;
+    return this;
+  }
+
+  on(table: string): this {
+    this.foreignKey.on = table;
+    return this;
+  }
+
+  onDelete(action: string): this {
+    this.foreignKey.onDelete = action;
+    return this;
+  }
+
+  onUpdate(action: string): this {
+    this.foreignKey.onUpdate = action;
+    return this;
+  }
+
+  build(): ForeignKeyDefinition {
+    return this.foreignKey;
+  }
 }
 
 export class Blueprint {
   private columns: ColumnDefinition[] = [];
   private indexes: IndexDefinition[] = [];
   private foreignKeys: ForeignKeyDefinition[] = [];
-  private isAlter: boolean;
 
-  constructor(private tableName: string, isAlter: boolean = false) {
-    this.isAlter = isAlter;
+  constructor(private tableName: string, private isAlter = false) {}
+
+  private addColumn(column: ColumnDefinition): this {
+    this.columns.push(column);
+    return this;
   }
 
-  increments(columnName: string): this {
-    this.columns.push({
-      name: columnName,
+  increments(name: string): this {
+    return this.addColumn({
+      name,
       type: "INTEGER",
       autoIncrement: true,
       primary: true,
     });
-    return this;
   }
 
-  integer(columnName: string): this {
-    this.columns.push({ name: columnName, type: "INTEGER" });
-    return this;
+  integer(name: string): this {
+    return this.addColumn({ name, type: "INTEGER" });
   }
 
-  bigInteger(columnName: string): this {
-    this.columns.push({ name: columnName, type: "BIGINT" });
-    return this;
+  bigInteger(name: string): this {
+    return this.addColumn({ name, type: "BIGINT" });
   }
 
-  string(columnName: string, length: number = 255): this {
-    this.columns.push({ name: columnName, type: "VARCHAR", length });
-    return this;
+  string(name: string, length = 255): this {
+    return this.addColumn({ name, type: "VARCHAR", length });
   }
 
-  text(columnName: string): this {
-    this.columns.push({ name: columnName, type: "TEXT" });
-    return this;
+  text(name: string): this {
+    return this.addColumn({ name, type: "TEXT" });
   }
 
-  float(columnName: string, precision?: number, scale?: number): this {
-    let type = "FLOAT";
-    if (precision !== undefined && scale !== undefined) {
-      type = `FLOAT(${precision},${scale})`;
-    }
-    this.columns.push({ name: columnName, type });
-    return this;
+  boolean(name: string): this {
+    return this.addColumn({ name, type: "BOOLEAN" });
   }
 
-  decimal(columnName: string, precision: number, scale: number): this {
-    this.columns.push({
-      name: columnName,
-      type: `DECIMAL(${precision},${scale})`,
-    });
-    return this;
+  date(name: string): this {
+    return this.addColumn({ name, type: "DATE" });
   }
 
-  boolean(columnName: string): this {
-    this.columns.push({ name: columnName, type: "BOOLEAN" });
-    return this;
+  dateTime(name: string): this {
+    return this.addColumn({ name, type: "DATETIME" });
   }
 
-  date(columnName: string): this {
-    this.columns.push({ name: columnName, type: "DATE" });
-    return this;
-  }
-
-  dateTime(columnName: string): this {
-    this.columns.push({ name: columnName, type: "DATETIME" });
-    return this;
-  }
-
-  timestamp(columnName: string, defaultValue?: string): this {
-    this.columns.push({
-      name: columnName,
-      type: "TIMESTAMP",
-      default: defaultValue,
-    });
-    return this;
+  timestamp(name: string, defaultValue?: string): this {
+    return this.addColumn({ name, type: "TIMESTAMP", default: defaultValue });
   }
 
   timestamps(): this {
-    this.timestamp("created_at", "CURRENT_TIMESTAMP");
-    this.timestamp("updated_at", "CURRENT_TIMESTAMP");
+    this.timestamp("created_at");
+    this.timestamp("updated_at");
     return this;
   }
 
-  softDeletes(): this {
-    this.timestamp("deleted_at").nullable();
-    return this;
-  }
-
-  primary(columnName: string | string[]): this {
+  primary(columns: string | string[]): this {
     this.indexes.push({
       type: "PRIMARY",
-      columns: Array.isArray(columnName) ? columnName : [columnName],
+      columns: Array.isArray(columns) ? columns : [columns],
     });
     return this;
   }
 
-  unique(columnName: string | string[]): this {
+  unique(columns: string | string[]): this {
     this.indexes.push({
       type: "UNIQUE",
-      columns: Array.isArray(columnName) ? columnName : [columnName],
+      columns: Array.isArray(columns) ? columns : [columns],
     });
     return this;
   }
 
-  index(columnName: string | string[]): this {
+  index(columns: string | string[]): this {
     this.indexes.push({
       type: "INDEX",
-      columns: Array.isArray(columnName) ? columnName : [columnName],
+      columns: Array.isArray(columns) ? columns : [columns],
     });
     return this;
   }
 
   foreign(column: string): ForeignKeyBuilder {
-    const foreignKey = new ForeignKeyBuilder(column);
-    this.foreignKeys.push(foreignKey);
-    return foreignKey;
+    const builder = new ForeignKeyBuilder(column);
+    this.foreignKeys.push(builder.build());
+    return builder;
   }
 
   nullable(): this {
-    const lastColumn = this.columns[this.columns.length - 1];
-    if (lastColumn) {
-      lastColumn.nullable = true;
-    }
+    if (this.columns.length)
+      this.columns[this.columns.length - 1].nullable = true;
     return this;
   }
 
   default(value: any): this {
-    const lastColumn = this.columns[this.columns.length - 1];
-    if (lastColumn) {
-      lastColumn.default = value;
-    }
-    return this;
-  }
-
-  unsigned(): this {
-    const lastColumn = this.columns[this.columns.length - 1];
-    if (lastColumn) {
-      lastColumn.unsigned = true;
-    }
+    if (this.columns.length)
+      this.columns[this.columns.length - 1].default = value;
     return this;
   }
 
   toSQL(): string {
-    if (this.isAlter) {
-      return this.toAlterTableSQL();
-    }
-    return this.toCreateTableSQL();
+    return this.isAlter ? this.toAlterSQL() : this.toCreateSQL();
   }
 
-  private toCreateTableSQL(): string {
-    const columnDefinitions = this.columns
+  private toCreateSQL(): string {
+    const columnDefs = this.columns
       .map((col) => this.columnToSQL(col))
       .join(", ");
-    const indexDefinitions = this.indexes
+    const indexDefs = this.indexes
       .map((idx) => this.indexToSQL(idx))
       .join(", ");
-    const foreignKeyDefinitions = this.foreignKeys
-      .map((fk) => fk.toSQL())
+    const foreignDefs = this.foreignKeys
+      .map((fk) => this.foreignKeyToSQL(fk))
       .join(", ");
 
-    let sql = `CREATE TABLE ${this.tableName} (${columnDefinitions}`;
-    if (indexDefinitions) sql += `, ${indexDefinitions}`;
-    if (foreignKeyDefinitions) sql += `, ${foreignKeyDefinitions}`;
+    let sql = `CREATE TABLE ${this.tableName} (${columnDefs}`;
+    if (indexDefs) sql += `, ${indexDefs}`;
+    if (foreignDefs) sql += `, ${foreignDefs}`;
     sql += ")";
 
     return sql;
   }
 
-  private toAlterTableSQL(): string {
-    const alterStatements = [
-      ...this.columns.map(
-        (col) =>
-          `ALTER TABLE ${this.tableName} ADD COLUMN ${this.columnToSQL(col)}`
-      ),
-      ...this.indexes.map(
-        (idx) => `ALTER TABLE ${this.tableName} ADD ${this.indexToSQL(idx)}`
-      ),
-      ...this.foreignKeys.map(
-        (fk) => `ALTER TABLE ${this.tableName} ADD ${fk.toSQL()}`
-      ),
-    ];
-    return alterStatements.join("; ");
+  private toAlterSQL(): string {
+    const alterColumns = this.columns
+      .map((col) => `ADD ${this.columnToSQL(col)}`)
+      .join(", ");
+    const alterIndexes = this.indexes
+      .map((idx) => `ADD ${this.indexToSQL(idx)}`)
+      .join(", ");
+    const alterForeigns = this.foreignKeys
+      .map((fk) => `ADD ${this.foreignKeyToSQL(fk)}`)
+      .join(", ");
+
+    return `ALTER TABLE ${this.tableName} ${[
+      alterColumns,
+      alterIndexes,
+      alterForeigns,
+    ]
+      .filter(Boolean)
+      .join(", ")}`;
   }
 
   private columnToSQL(column: ColumnDefinition): string {
-    let sql = `${column.name} ${column.type}`;
-    if (column.length) {
-      sql += `(${column.length})`;
-    }
-    if (column.unsigned) {
-      sql += " UNSIGNED";
-    }
-    if (column.autoIncrement) {
-      sql += " AUTO_INCREMENT";
-    }
-    if (column.primary) {
-      sql += " PRIMARY KEY";
-    }
-    if (column.nullable) {
-      sql += " NULL";
-    } else {
-      sql += " NOT NULL";
-    }
-    if (column.default !== undefined) {
-      if (column.type === "TIMESTAMP") {
-        sql += ` DEFAULT ${
-          column.default === "CURRENT_TIMESTAMP"
-            ? "CURRENT_TIMESTAMP"
-            : `'${column.default}'`
-        }`;
-      } else {
-        sql += ` DEFAULT ${this.formatDefaultValue(column.default)}`;
-      }
-    }
-    return sql;
+    const parts = [`${column.name} ${column.type}`];
+    if (column.length) parts.push(`(${column.length})`);
+    if (column.unsigned) parts.push("UNSIGNED");
+    if (column.autoIncrement) parts.push("AUTO_INCREMENT");
+    if (column.primary) parts.push("PRIMARY KEY");
+    parts.push(column.nullable ? "NULL" : "NOT NULL");
+    if (column.default !== undefined) parts.push(`DEFAULT '${column.default}'`);
+    return parts.join(" ");
   }
 
   private indexToSQL(index: IndexDefinition): string {
-    const indexType = index.type === "PRIMARY" ? "PRIMARY KEY" : index.type;
-    return `${indexType} (${index.columns.join(", ")})`;
+    return `${
+      index.type === "PRIMARY" ? "PRIMARY KEY" : `${index.type} INDEX`
+    } (${index.columns.join(", ")})`;
   }
 
-  private formatDefaultValue(value: any): string {
-    if (typeof value === "string") {
-      return `'${value}'`;
-    }
-    if (typeof value === "boolean") {
-      return value ? "1" : "0";
-    }
-    return String(value);
+  private foreignKeyToSQL(fk: ForeignKeyDefinition): string {
+    return (
+      `FOREIGN KEY (${fk.column}) REFERENCES ${fk.on}(${fk.references})` +
+      (fk.onDelete ? ` ON DELETE ${fk.onDelete}` : "") +
+      (fk.onUpdate ? ` ON UPDATE ${fk.onUpdate}` : "")
+    );
   }
 }

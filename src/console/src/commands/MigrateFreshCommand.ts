@@ -1,6 +1,7 @@
 import { ConfigServiceProvider } from "@bunvel/config";
 import { Application } from "@bunvel/core";
 import { type Database, DatabaseServiceProvider } from "@bunvel/database";
+import { Config } from "@bunvel/facade";
 import { Logger } from "@bunvel/log";
 import { Command } from "../command";
 import InstallMigrationCommand from "./InstallMigrationCommand";
@@ -29,14 +30,13 @@ class MigrateFreshCommand extends Command {
     // Re-run all migrations
     const migrateCommand = new MigrateCommand();
     await migrateCommand.handle();
-    Logger.info("Database fresh and migrations re-applied successfully.");
   }
 
   private async dropAllTables(): Promise<void> {
     try {
       const tables = await this.getAllTables();
       for (const table of tables) {
-        await this.connection!.query(`DROP TABLE IF EXISTS \`${table}\``);
+        await this.connection!.query(`DROP TABLE IF EXISTS ${table}`);
         Logger.info(`Dropped table: ${table}`);
       }
     } catch (error: any) {
@@ -45,8 +45,39 @@ class MigrateFreshCommand extends Command {
   }
 
   private async getAllTables(): Promise<string[]> {
-    const result = await this.connection!.query("SHOW TABLES");
-    return result.map((row: any) => Object.values(row)[0]);
+    let sql = "";
+
+    const database = await Config.get("database.default");
+    const databaseName = await Config.get(
+      "database.connections." + database + ".database"
+    );
+
+    switch (database) {
+      case "mysql":
+        sql = `SHOW TABLES FROM \`${databaseName}\``;
+        break;
+
+      case "postgresql":
+        sql = `SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`;
+        break;
+
+      case "sqlite":
+        sql = `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`;
+        break;
+
+      default:
+        throw new Error("Unsupported database driver");
+    }
+
+    try {
+      const result = await this.connection?.query(sql);
+      if (!result) {
+        throw new Error("Error getting tables: " + sql);
+      }
+      return result.map((row: any) => Object.values(row)[0]);
+    } catch (error) {
+      throw new Error("Error getting tables: " + error);
+    }
   }
 
   private async connectToDatabase(): Promise<Database | null> {

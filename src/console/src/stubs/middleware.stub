@@ -1,7 +1,7 @@
 import type { Context } from "@bunvel/framework";
 
 const {{middlewareName}} = async (c: Context, next: () => Promise<void>) => {
-  console.log("{{middlewareName}}");
+  console.log("Running {{middlewareName}}");
   await next();
 };
 

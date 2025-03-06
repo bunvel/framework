@@ -1,4 +1,3 @@
-// DatabaseAdapterFactory.ts
 import { MySQLAdapter } from "./adapter/MySQLAdapter.ts";
 import { PostgreSQLAdapter } from "./adapter/PostgreSQLAdapter.ts";
 import { SQLiteAdapter } from "./adapter/SQLiteAdapter.ts";
@@ -18,11 +17,11 @@ export class DatabaseAdapterFactory {
       case "postgresql":
         return new PostgreSQLAdapter();
       default:
-        throw new Error(`Unsupported database type: ${config.type}`);
+        throw new Error(`Unsupported database: ${config.type}`);
     }
   }
 
-  static createQueryBuilder(adapter: Database): QueryBuilder {
+  static createQueryBuilder<T extends Database>(adapter: T): QueryBuilder {
     if (adapter instanceof MySQLAdapter) {
       return new MySQLQueryBuilder(adapter);
     } else if (adapter instanceof PostgreSQLAdapter) {

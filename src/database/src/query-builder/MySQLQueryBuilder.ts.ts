@@ -13,27 +13,27 @@ export class MySQLQueryBuilder implements QueryBuilder {
   }
 
   // Table selection
-  table(tableName: string): QueryBuilder {
+  table(tableName: string): this {
     this.tableName = tableName;
     return this;
   }
 
   // Select columns
-  select(columns: string[]): QueryBuilder {
+  select(columns: string[]): this {
     if (!this.tableName) throw new Error("Table name not set");
     this.query = `SELECT ${columns.join(", ")} FROM ${this.tableName}`;
     return this;
   }
 
   // Distinct selection
-  distinct(columns: string[]): QueryBuilder {
+  distinct(columns: string[]): this {
     if (!this.tableName) throw new Error("Table name not set");
     this.query = `SELECT DISTINCT ${columns.join(", ")} FROM ${this.tableName}`;
     return this;
   }
 
-  // Add where condition
-  where(column: string, operator: string, value: any): QueryBuilder {
+  // Add WHERE clause
+  where(column: string, operator: string, value: any): this {
     if (!this.hasWhere) {
       this.query += ` WHERE ${column} ${operator} ?`;
       this.hasWhere = true;
@@ -44,13 +44,11 @@ export class MySQLQueryBuilder implements QueryBuilder {
     return this;
   }
 
-  // Add AND where condition
-  andWhere(column: string, operator: string, value: any): QueryBuilder {
-    return this.where(column, operator, value);
-  }
-
-  // Add OR where condition
-  orWhere(column: string, operator: string, value: any): QueryBuilder {
+  // Add OR WHERE clause
+  orWhere(column: string, operator: string, value: any): this {
+    if (!this.hasWhere) {
+      throw new Error("Cannot use 'orWhere' without 'where'");
+    }
     this.query += ` OR ${column} ${operator} ?`;
     this.params.push(value);
     return this;
@@ -62,7 +60,7 @@ export class MySQLQueryBuilder implements QueryBuilder {
     column1: string,
     operator: string,
     column2: string
-  ): QueryBuilder {
+  ): this {
     this.query += ` JOIN ${tableName} ON ${column1} ${operator} ${column2}`;
     return this;
   }
@@ -73,7 +71,7 @@ export class MySQLQueryBuilder implements QueryBuilder {
     column1: string,
     operator: string,
     column2: string
-  ): QueryBuilder {
+  ): this {
     this.query += ` LEFT JOIN ${tableName} ON ${column1} ${operator} ${column2}`;
     return this;
   }
@@ -84,63 +82,65 @@ export class MySQLQueryBuilder implements QueryBuilder {
     column1: string,
     operator: string,
     column2: string
-  ): QueryBuilder {
+  ): this {
     this.query += ` RIGHT JOIN ${tableName} ON ${column1} ${operator} ${column2}`;
     return this;
   }
 
-  // Group by columns
-  groupBy(columns: string[]): QueryBuilder {
+  // Group By
+  groupBy(columns: string[]): this {
     this.query += ` GROUP BY ${columns.join(", ")}`;
     return this;
   }
 
-  // Add having clause
-  having(column: string, operator: string, value: any): QueryBuilder {
+  // HAVING clause
+  having(column: string, operator: string, value: any): this {
     this.query += ` HAVING ${column} ${operator} ?`;
     this.params.push(value);
     return this;
   }
 
-  // Order by columns
-  orderBy(column: string, direction: "asc" | "desc" = "asc"): QueryBuilder {
+  // Order By
+  orderBy(column: string, direction: "asc" | "desc" = "asc"): this {
     this.query += ` ORDER BY ${column} ${direction}`;
     return this;
   }
 
-  // Limit the number of rows
-  limit(limit: number): QueryBuilder {
+  // Limit
+  limit(limit: number): this {
     this.query += ` LIMIT ${limit}`;
     return this;
   }
 
-  // Offset rows
-  offset(offset: number): QueryBuilder {
+  // Offset
+  offset(offset: number): this {
     this.query += ` OFFSET ${offset}`;
     return this;
   }
 
   // Count rows
-  count(column: string = "*"): QueryBuilder {
+  count(column: string = "*"): this {
+    if (!this.tableName) throw new Error("Table name not set");
     this.query = `SELECT COUNT(${column}) FROM ${this.tableName}`;
     return this;
   }
 
-  // Execute query and get results
+  // Execute and get results
   async get(): Promise<any> {
+    if (!this.tableName) throw new Error("Table name not set");
     const result = await this.adapter.query(this.query, this.params);
-    this.clear(); // Clear query and params after execution
+    this.clear();
     return result;
   }
 
-  // Execute query and get the first result
+  // Get first result
   async first(): Promise<any> {
     this.limit(1);
     const result = await this.get();
     return result[0] || null;
   }
 
-  // Insert new record
+  // Insert record
   async insert(data: object): Promise<void> {
     if (!this.tableName) throw new Error("Table name not set");
     const columns = Object.keys(data).join(", ");
@@ -153,27 +153,23 @@ export class MySQLQueryBuilder implements QueryBuilder {
     this.clear();
   }
 
-  // Update existing records
+  // Update record
   async update(data: object): Promise<void> {
     if (!this.tableName) throw new Error("Table name not set");
+    if (!this.hasWhere) throw new Error("Update requires a WHERE clause");
     const setClause = Object.keys(data)
       .map((key) => `${key} = ?`)
       .join(", ");
     this.query = `UPDATE ${this.tableName} SET ${setClause}`;
-    if (!this.hasWhere) {
-      throw new Error("Update operation requires a WHERE clause");
-    }
     this.params = [...Object.values(data), ...this.params];
     await this.adapter.execute(this.query, this.params);
     this.clear();
   }
 
-  // Delete records
+  // Delete record
   async delete(): Promise<void> {
     if (!this.tableName) throw new Error("Table name not set");
-    if (!this.hasWhere) {
-      throw new Error("Delete operation requires a WHERE clause");
-    }
+    if (!this.hasWhere) throw new Error("Delete requires a WHERE clause");
     this.query = `DELETE FROM ${this.tableName}`;
     await this.adapter.execute(this.query, this.params);
     this.clear();
@@ -183,12 +179,12 @@ export class MySQLQueryBuilder implements QueryBuilder {
   async truncate(): Promise<void> {
     if (!this.tableName) throw new Error("Table name not set");
     this.query = `TRUNCATE TABLE ${this.tableName}`;
-    await this.adapter.execute(this.query, this.params);
+    await this.adapter.execute(this.query);
     this.clear();
   }
 
-  // Clear query and params after execution
-  private clear() {
+  // Clear internal state
+  private clear(): void {
     this.query = "";
     this.params = [];
     this.hasWhere = false;

@@ -1,6 +1,6 @@
-import { ConfigServiceProvider } from "@bunvel//config";
-import { Application } from "@bunvel//core";
-import { type Database, DatabaseServiceProvider } from "@bunvel//database";
+import { ConfigServiceProvider } from "@bunvel/config";
+import { Application } from "@bunvel/core";
+import { type Database, DatabaseServiceProvider } from "@bunvel/database";
 import { Logger } from "@bunvel/log";
 import { Command } from "../command";
 

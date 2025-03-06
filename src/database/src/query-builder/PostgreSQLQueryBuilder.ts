@@ -13,19 +13,19 @@ export class PostgreSQLQueryBuilder implements QueryBuilder {
     this.adapter = adapter;
   }
 
-  table(tableName: string): QueryBuilder {
+  table(tableName: string): this {
     this.tableName = tableName;
     return this;
   }
 
-  select(columns: string[]): QueryBuilder {
+  select(columns: string[]): this {
     if (!this.tableName) throw new Error("Table name not set");
     const cols = columns.length ? columns.join(", ") : "*";
     this.query = `SELECT ${cols} FROM ${this.tableName}`;
     return this;
   }
 
-  where(column: string, operator: string, value: any): QueryBuilder {
+  where(column: string, operator: string, value: any): this {
     const clause = this.whereUsed ? " AND" : " WHERE";
     this.query += `${clause} ${column} ${operator} $${this.params.length + 1}`;
     this.params.push(value);
@@ -33,11 +33,11 @@ export class PostgreSQLQueryBuilder implements QueryBuilder {
     return this;
   }
 
-  andWhere(column: string, operator: string, value: any): QueryBuilder {
+  andWhere(column: string, operator: string, value: any): this {
     return this.where(column, operator, value);
   }
 
-  orWhere(column: string, operator: string, value: any): QueryBuilder {
+  orWhere(column: string, operator: string, value: any): this {
     this.query += ` OR ${column} ${operator} $${this.params.length + 1}`;
     this.params.push(value);
     return this;
@@ -48,7 +48,7 @@ export class PostgreSQLQueryBuilder implements QueryBuilder {
     column1: string,
     operator: string,
     column2: string
-  ): QueryBuilder {
+  ): this {
     this.query += ` JOIN ${tableName} ON ${column1} ${operator} ${column2}`;
     return this;
   }
@@ -58,33 +58,33 @@ export class PostgreSQLQueryBuilder implements QueryBuilder {
     column1: string,
     operator: string,
     column2: string
-  ): QueryBuilder {
+  ): this {
     this.query += ` LEFT JOIN ${tableName} ON ${column1} ${operator} ${column2}`;
     return this;
   }
 
-  groupBy(columns: string[]): QueryBuilder {
+  groupBy(columns: string[]): this {
     this.query += ` GROUP BY ${columns.join(", ")}`;
     return this;
   }
 
-  having(column: string, operator: string, value: any): QueryBuilder {
+  having(column: string, operator: string, value: any): this {
     this.query += ` HAVING ${column} ${operator} $${this.params.length + 1}`;
     this.params.push(value);
     return this;
   }
 
-  orderBy(column: string, direction: "asc" | "desc"): QueryBuilder {
+  orderBy(column: string, direction: "asc" | "desc" = "asc"): this {
     this.query += ` ORDER BY ${column} ${direction}`;
     return this;
   }
 
-  limit(limit: number): QueryBuilder {
+  limit(limit: number): this {
     this.query += ` LIMIT ${limit}`;
     return this;
   }
 
-  offset(offset: number): QueryBuilder {
+  offset(offset: number): this {
     this.query += ` OFFSET ${offset}`;
     return this;
   }
@@ -100,8 +100,7 @@ export class PostgreSQLQueryBuilder implements QueryBuilder {
     return results[0] || null;
   }
 
-  async insert(data: object): Promise<void> {
-    if (!this.tableName) throw new Error("Table name not set");
+  async insert(data: Record<string, any>): Promise<void> {
     const columns = Object.keys(data).join(", ");
     const values = Object.values(data)
       .map((_, i) => `$${i + 1}`)
@@ -111,7 +110,7 @@ export class PostgreSQLQueryBuilder implements QueryBuilder {
     await this.adapter.execute(this.query, this.params);
   }
 
-  async update(data: object): Promise<void> {
+  async update(data: Record<string, any>): Promise<void> {
     if (!this.tableName) throw new Error("Table name not set");
     const setClause = Object.keys(data)
       .map((key, i) => `${key} = $${i + 1}`)
@@ -131,5 +130,12 @@ export class PostgreSQLQueryBuilder implements QueryBuilder {
     if (!this.tableName) throw new Error("Table name not set");
     this.query = `TRUNCATE TABLE ${this.tableName}`;
     await this.adapter.execute(this.query);
+  }
+
+  reset(): this {
+    this.query = "";
+    this.params = [];
+    this.whereUsed = false;
+    return this;
   }
 }
