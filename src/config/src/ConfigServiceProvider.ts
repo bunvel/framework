@@ -12,6 +12,6 @@ export class ConfigServiceProvider extends ServiceProvider {
   }
 
   async boot(): Promise<void> {
-    await this.app.make("config");
+    await this.app.make<ConfigurationService>("config");
   }
 }

@@ -1,7 +1,7 @@
 import { ConfigurationService } from "@bunvel/config";
 import { Logger } from "@bunvel/log";
 import { CLIFormatter } from "../cli_formatter";
-import { Command } from "../command";
+import { Command, type CommandArgs } from "../command";
 
 class ConfigShowCommand extends Command {
   private configService: ConfigurationService;
@@ -11,7 +11,7 @@ class ConfigShowCommand extends Command {
     this.configService = new ConfigurationService();
   }
 
-  async handle(args: any = {}): Promise<void> {
+  async handle(args: CommandArgs): Promise<void> {
     let fileName = "";
     try {
       if (args.positionals.length === 0) {

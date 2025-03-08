@@ -101,14 +101,29 @@ export class SQLiteQueryBuilder implements QueryBuilder {
     return results[0] || null;
   }
 
-  async insert(data: Record<string, any>): Promise<void> {
+  async insert(
+    data: Record<string, any> | Record<string, any>[]
+  ): Promise<void> {
     if (!this.tableName) throw new Error("Table name not set");
-    const columns = Object.keys(data).join(", ");
-    const values = Object.values(data)
-      .map(() => "?")
-      .join(", ");
-    this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES (${values})`;
-    this.params = Object.values(data);
+    if (!Array.isArray(data)) {
+      const columns = Object.keys(data).join(", ");
+      const values = Object.values(data)
+        .map(() => "?")
+        .join(", ");
+      this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES (${values})`;
+      this.params = Object.values(data);
+    } else {
+      const columns = Object.keys(data[0]).join(", ");
+      const values = data
+        .map((row) =>
+          Object.values(row)
+            .map(() => "?")
+            .join(", ")
+        )
+        .join("), (");
+      this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES (${values})`;
+      this.params = data.flatMap(Object.values);
+    }
     await this.adapter.execute(this.query, this.params);
   }
 

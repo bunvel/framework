@@ -1,5 +1,4 @@
 import { type Context, Hono, type MiddlewareHandler } from "hono";
-import { RouterLoggerMiddleware } from "./RouterMiddleware";
 import type { Controller, HttpMethod, RouteHandler } from "./types";
 
 export class RouterService {
@@ -61,7 +60,7 @@ export class RouterService {
     const finalMiddlewares = [
       ...this.globalMiddleware,
       ...middlewares,
-      RouterLoggerMiddleware,
+      // RouterLoggerMiddleware,
     ];
     this.router[method](path, ...finalMiddlewares, async (c: Context) => {
       const response = await handler(c);

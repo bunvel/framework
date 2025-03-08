@@ -8,7 +8,7 @@ export class PostgreSQLAdapter implements Database {
 
   checkDependencies(): void {
     try {
-      require.resolve("pg");
+      Bun.resolveSync("pg", import.meta.dir);
     } catch {
       throw new Error("pg package is missing. Run: 'bun add pg'");
     }
@@ -63,7 +63,6 @@ export class PostgreSQLAdapter implements Database {
     await this.ensureConnected();
 
     try {
-      console.log(sql, params);
       const result = await this.client.query(sql, params);
       return result.rows;
     } catch (error: any) {

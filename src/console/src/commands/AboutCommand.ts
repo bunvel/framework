@@ -1,5 +1,4 @@
-import fs from "fs";
-import os from "os";
+import { Logger } from "@bunvel/log";
 import path from "path";
 import { CLIFormatter } from "../cli_formatter";
 import { Command } from "../command";
@@ -11,14 +10,13 @@ class AboutCommand extends Command {
 
   async handle(): Promise<void> {
     const runtimeInfo = this.getRuntimeInfo();
-    const packageVersion = this.getPackageVersion();
+    const packageVersion = await this.getPackageVersion();
 
     const appInfo = {
       "Application Name": Bun.env.APP_NAME,
       "Application Version": packageVersion,
       Runtime: runtimeInfo.runtime,
       Version: runtimeInfo.version,
-      "OS Platform": os.platform(),
       Environment: Bun.env.APP_ENV || "local",
       "Debug Mode": Bun.env.APP_DEBUG == "true" ? "ENABLED" : "DISABLED",
       URL: Bun.env.APP_URL || "http://localhost",
@@ -26,34 +24,12 @@ class AboutCommand extends Command {
       Locale: "en",
     };
 
-    // const cacheStatus = {
-    //   Config: this.isCached("config"),
-    //   Routes: this.isCached("routes"),
-    //   Views: this.isCached("views"),
-    // };
-
-    // const drivers = {
-    //   Cache: process.env.CACHE_DRIVER || "file",
-    //   Database: process.env.DB_CONNECTION || "sqlite",
-    //   Queue: process.env.QUEUE_DRIVER || "sync",
-    //   Session: process.env.SESSION_DRIVER || "file",
-    // };
-
     console.log(
       CLIFormatter.formatOutput({
         Environment: appInfo,
-        // Cache: cacheStatus,
-        // Drivers: drivers,
       })
     );
   }
-
-  // // Method to simulate checking cache status (modify according to your implementation)
-  // isCached(type: string): string {
-  //   // Here, you would typically check if the cache for "config", "routes", or "views" exists
-  //   return "NOT CACHED";
-  // }
-
   // Method to detect the current runtime environment
   getRuntimeInfo(): { runtime: string; version: string } {
     if (typeof Bun !== "undefined") {
@@ -63,13 +39,13 @@ class AboutCommand extends Command {
     }
   }
 
-  getPackageVersion(): string {
+  async getPackageVersion(): Promise<string> {
     try {
       const packageJsonPath = path.resolve(process.cwd(), "package.json");
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+      const packageJson = await Bun.file(packageJsonPath).json();
       return packageJson.version || "Unknown";
     } catch (error) {
-      console.error("Error reading package.json:", error);
+      Logger.error("Error reading package.json:", error);
       return "Unknown";
     }
   }

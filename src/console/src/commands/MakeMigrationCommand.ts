@@ -2,14 +2,14 @@ import { Logger } from "@bunvel/log";
 import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Command } from "../command";
+import { Command, type CommandArgs } from "../command";
 
 class MakeMigrationCommand extends Command {
   constructor() {
     super("make:migration", "Create a new migration");
   }
 
-  async handle(args: any = {}): Promise<void> {
+  async handle(args: CommandArgs): Promise<void> {
     const migrationName = this.getMigrationName(args);
 
     if (!migrationName) {
@@ -34,7 +34,7 @@ class MakeMigrationCommand extends Command {
     }
 
     const tableName = this.getTableName(formattedName);
-    const stubFile = this.getStubFile(args);
+    const stubFile = this.getStubFile();
     const content = this.getMigrationContent(stubFile, tableName);
 
     try {
@@ -113,19 +113,15 @@ class MakeMigrationCommand extends Command {
     return Str.plural(name);
   }
 
-  private getStubFile(args: any): string {
+  private getStubFile(): string {
     return join(__dirname, "..", "stubs", "migration.stub");
   }
 
   private getMigrationContent(stubFile: string, tableName: string): string {
     const stubContent = readFileSync(stubFile, "utf-8");
     return stubContent
-      .replace(/{{className}}/g, this.toPascalCase(tableName))
+      .replace(/{{className}}/g, Str.pascalCase(tableName))
       .replace(/{{tableName}}/g, tableName);
-  }
-
-  private toPascalCase(str: string): string {
-    return Str.pascalCase(str);
   }
 }
 

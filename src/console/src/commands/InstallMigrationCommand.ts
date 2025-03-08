@@ -20,9 +20,9 @@ class InstallMigrationCommand extends Command {
 
     try {
       await this.createMigrationTable(this.connection);
-      Logger.info("Migration tracking table created successfully.");
+      Logger.info("Migration table created successfully.");
     } catch (error) {
-      Logger.error(`Error creating migration tracking table: ${error}`);
+      Logger.error(`Error creating migration table: ${error}`);
     }
   }
 
@@ -45,7 +45,7 @@ class InstallMigrationCommand extends Command {
       await app.register([ConfigServiceProvider, DatabaseServiceProvider]);
       await app.boot();
 
-      const connection: Database = await app.make("database");
+      const connection: Database = await app.make<Database>("database");
       return connection;
     } catch (error) {
       Logger.error("Database connection failed:");

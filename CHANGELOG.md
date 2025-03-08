@@ -1,5 +1,11 @@
 # @bunvel/framework
 
+## 0.9.0
+
+### Minor Changes
+
+- Fixed database methods
+
 ## 0.8.1
 
 ### Patch Changes

@@ -24,25 +24,48 @@ export class Schema {
     await this.adapter.query(sql);
   }
 
-  async drop(tableName: string): Promise<void> {
+  async dropIfExists(tableName: string): Promise<void> {
     const sql = `DROP TABLE IF EXISTS \`${tableName}\``;
     await this.adapter.query(sql);
   }
 
-  async dropIfExists(tableName: string): Promise<void> {
-    await this.drop(tableName);
-  }
-
   async hasTable(tableName: string): Promise<boolean> {
-    const sql = `SELECT 1 FROM information_schema.tables WHERE table_name = ?`;
+    let sql: string;
+    if (this.adapter.driver === "postgresql") {
+      sql = `SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = $1
+             )`;
+      const result = await this.adapter.query(sql, [tableName]);
+      return result[0].exists;
+    }
+    if (this.adapter.driver === "sqlite") {
+      sql = `SELECT name FROM sqlite_master WHERE type='table' AND name=?`;
+    } else {
+      sql = `SHOW TABLES LIKE ?`;
+    }
     const result = await this.adapter.query(sql, [tableName]);
     return result.length > 0;
   }
 
   async hasColumn(tableName: string, columnName: string): Promise<boolean> {
-    const sql = `PRAGMA table_info(${tableName})`;
-    const columns = await this.adapter.query(sql);
-    return columns.some((column: any) => column.name === columnName);
+    if (this.adapter.driver === "sqlite") {
+      const sql = `PRAGMA table_info(${tableName})`;
+      const columns = await this.adapter.query(sql);
+      return columns.some((column: any) => column.name === columnName);
+    } else if (this.adapter.driver === "postgresql") {
+      const sql = `
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = $1 AND column_name = $2
+      `;
+      const result = await this.adapter.query(sql, [tableName, columnName]);
+      return result.length > 0;
+    } else {
+      const sql = `SHOW COLUMNS FROM \`${tableName}\` LIKE ?`;
+      const result = await this.adapter.query(sql, [columnName]);
+      return result.length > 0;
+    }
   }
 
   async dropColumn(tableName: string, columnName: string): Promise<void> {
@@ -78,6 +101,9 @@ export class Schema {
   ): Promise<void> {
     if (this.adapter.driver === "sqlite") {
       throw new Error("SQLite does not support ALTER COLUMN TYPE.");
+    }
+    if (this.adapter.driver === "postgresql") {
+      throw new Error("PostgreSQL does not support ALTER COLUMN TYPE.");
     }
     const sql = `ALTER TABLE \`${tableName}\` MODIFY \`${columnName}\` ${newType}`;
     await this.adapter.query(sql);

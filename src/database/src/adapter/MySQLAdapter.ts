@@ -7,7 +7,7 @@ export class MySQLAdapter implements Database {
 
   checkDependencies(): void {
     try {
-      require.resolve("mysql2/promise");
+      Bun.resolveSync("mysql2/promise", import.meta.dir);
     } catch {
       throw new Error("mysql2 package is missing. Run: 'bun add mysql2'");
     }

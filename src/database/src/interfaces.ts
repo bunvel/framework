@@ -3,6 +3,7 @@ export interface Database {
   connect(config: ConnectionConfig): Promise<void>;
   disconnect(): Promise<void>;
   query(sql: string, params?: any[]): Promise<any>;
+  execute(sql: string, params?: any[]): Promise<any>;
   // Add more methods as needed
 }
 

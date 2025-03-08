@@ -7,7 +7,23 @@ import { PostgreSQLQueryBuilder } from "./query-builder/PostgreSQLQueryBuilder.t
 import type { QueryBuilder } from "./query-builder/QueryBuilder.ts";
 import { SQLiteQueryBuilder } from "./query-builder/SQLiteQueryBuilder.ts";
 
+/**
+ * DatabaseAdapterFactory
+ *
+ * This class provides a factory method to create database adapters and query
+ * builders based on the given database type.
+ *
+ * @example
+ * const adapter = DatabaseAdapterFactory.createAdapter({ type: "mysql", ... });
+ * const queryBuilder = DatabaseAdapterFactory.createQueryBuilder(adapter);
+ */
 export class DatabaseAdapterFactory {
+  /**
+   * Create a database adapter based on the given configuration.
+   *
+   * @param config - The database configuration.
+   * @returns The created database adapter.
+   */
   static createAdapter(config: ConnectionConfig): Database {
     switch (config.type) {
       case "mysql":
@@ -21,6 +37,12 @@ export class DatabaseAdapterFactory {
     }
   }
 
+  /**
+   * Create a query builder based on the given database adapter.
+   *
+   * @param adapter - The database adapter.
+   * @returns The created query builder.
+   */
   static createQueryBuilder<T extends Database>(adapter: T): QueryBuilder {
     if (adapter instanceof MySQLAdapter) {
       return new MySQLQueryBuilder(adapter);

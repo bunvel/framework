@@ -2,7 +2,7 @@ import { Logger } from "@bunvel/log";
 import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Command } from "../command";
+import { Command, type CommandArgs } from "../command";
 
 class MakeControllerCommand extends Command {
   constructor() {
@@ -14,7 +14,7 @@ class MakeControllerCommand extends Command {
     );
   }
 
-  async handle(args: any = {}): Promise<void> {
+  async handle(args: CommandArgs): Promise<void> {
     let controllerName: string;
 
     if (Array.isArray(args) && args.length > 0) {
@@ -42,9 +42,8 @@ class MakeControllerCommand extends Command {
     const { positionals = [], options = {} } = args;
 
     const isResourceController =
-      args.resource || args.options?.resource || positionals[1] == "-r";
-    const isApiController =
-      args.api || args.options?.api || positionals[1] == "-api";
+      args.options?.resource || positionals[1] == "-r";
+    const isApiController = args.options?.api || positionals[1] == "-api";
 
     if (!existsSync(controllersDir)) {
       mkdirSync(controllersDir, { recursive: true });

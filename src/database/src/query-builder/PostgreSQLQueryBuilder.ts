@@ -100,13 +100,34 @@ export class PostgreSQLQueryBuilder implements QueryBuilder {
     return results[0] || null;
   }
 
-  async insert(data: Record<string, any>): Promise<void> {
-    const columns = Object.keys(data).join(", ");
-    const values = Object.values(data)
-      .map((_, i) => `$${i + 1}`)
-      .join(", ");
-    this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES (${values})`;
-    this.params = Object.values(data);
+  async insert(
+    data: Record<string, any> | Record<string, any>[]
+  ): Promise<void> {
+    if (Array.isArray(data)) {
+      const columns = Object.keys(data[0]).join(", ");
+
+      // Ensure unique parameter indices across all rows
+      let paramIndex = 1;
+      const values = data
+        .map(
+          (row) =>
+            `(${Object.values(row)
+              .map(() => `$${paramIndex++}`)
+              .join(", ")})`
+        )
+        .join(", ");
+
+      this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES ${values}`;
+      this.params = data.flatMap((row) => Object.values(row));
+    } else {
+      const columns = Object.keys(data).join(", ");
+      const values = Object.values(data)
+        .map((_, i) => `$${i + 1}`)
+        .join(", ");
+      this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES (${values})`;
+      this.params = Object.values(data);
+    }
+
     await this.adapter.execute(this.query, this.params);
   }
 

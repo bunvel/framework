@@ -1,14 +1,13 @@
 import { ConfigurationService } from "@bunvel/config";
+import { Application } from "@bunvel/core";
 
 export class Config {
   private static configService: ConfigurationService;
 
   // Initialize the ConfigurationService and load configs
   private static async initialize(): Promise<void> {
-    if (!Config.configService) {
-      Config.configService = new ConfigurationService();
-      await Config.configService.loadConfigs();
-    }
+    const app = Application.getInstance();
+    Config.configService = await app.make<ConfigurationService>("config");
   }
 
   // Retrieve configuration value

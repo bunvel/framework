@@ -141,14 +141,26 @@ export class MySQLQueryBuilder implements QueryBuilder {
   }
 
   // Insert record
-  async insert(data: object): Promise<void> {
+  async insert(data: object | object[]): Promise<void> {
     if (!this.tableName) throw new Error("Table name not set");
-    const columns = Object.keys(data).join(", ");
-    const placeholders = Object.values(data)
-      .map(() => "?")
-      .join(", ");
-    this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders})`;
-    this.params = Object.values(data);
+    if (Array.isArray(data)) {
+      const columns = Object.keys(data[0]).join(", ");
+      const placeholders = data
+        .map(() => "?")
+        .join(", ")
+        .split(",")
+        .map((v, i) => `?${i + 1}`)
+        .join(", ");
+      this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders})`;
+      this.params = data.flatMap(Object.values);
+    } else {
+      const columns = Object.keys(data).join(", ");
+      const placeholders = Object.values(data)
+        .map(() => "?")
+        .join(", ");
+      this.query = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders})`;
+      this.params = Object.values(data);
+    }
     await this.adapter.execute(this.query, this.params);
     this.clear();
   }

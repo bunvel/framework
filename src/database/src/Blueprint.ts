@@ -1,6 +1,3 @@
-// Blueprint ORM for multiple database support
-// Supports MySQL, PostgreSQL, SQLite
-
 interface ColumnDefinition {
   name: string;
   type: string;
@@ -75,6 +72,17 @@ export class Blueprint {
       type: "INTEGER",
       autoIncrement: true,
       primary: true,
+      unsigned: true,
+    });
+  }
+
+  bigIncrements(name: string): this {
+    return this.addColumn({
+      name,
+      type: "BIGINT",
+      autoIncrement: true,
+      primary: true,
+      unsigned: true,
     });
   }
 
@@ -84,6 +92,18 @@ export class Blueprint {
 
   bigInteger(name: string): this {
     return this.addColumn({ name, type: "BIGINT" });
+  }
+
+  smallInteger(name: string): this {
+    return this.addColumn({ name, type: "SMALLINT" });
+  }
+
+  float(name: string): this {
+    return this.addColumn({ name, type: "FLOAT" });
+  }
+
+  double(name: string): this {
+    return this.addColumn({ name, type: "DOUBLE" });
   }
 
   string(name: string, length = 255): this {
@@ -98,6 +118,14 @@ export class Blueprint {
     return this.addColumn({ name, type: "BOOLEAN" });
   }
 
+  json(name: string): this {
+    return this.addColumn({ name, type: "JSON" });
+  }
+
+  jsonb(name: string): this {
+    return this.addColumn({ name, type: "JSONB" });
+  }
+
   date(name: string): this {
     return this.addColumn({ name, type: "DATE" });
   }
@@ -106,13 +134,17 @@ export class Blueprint {
     return this.addColumn({ name, type: "DATETIME" });
   }
 
-  timestamp(name: string, defaultValue?: string): this {
-    return this.addColumn({ name, type: "TIMESTAMP", default: defaultValue });
+  timestamp(name: string, useCurrent = false): this {
+    return this.addColumn({
+      name,
+      type: "TIMESTAMP",
+      default: useCurrent ? "CURRENT_TIMESTAMP" : undefined,
+    });
   }
 
   timestamps(): this {
-    this.timestamp("created_at");
-    this.timestamp("updated_at");
+    this.timestamp("created_at", true);
+    this.timestamp("updated_at", true);
     return this;
   }
 
@@ -162,6 +194,22 @@ export class Blueprint {
     return this.isAlter ? this.toAlterSQL() : this.toCreateSQL();
   }
 
+  private toAlterSQL(): string {
+    const columnDefs = this.columns
+      .map((col) => `ADD ${this.columnToSQL(col)}`)
+      .join(", ");
+    const indexDefs = this.indexes
+      .map((idx) => `ADD ${this.indexToSQL(idx)}`)
+      .join(", ");
+    const foreignDefs = this.foreignKeys
+      .map((fk) => `ADD ${this.foreignKeyToSQL(fk)}`)
+      .join(", ");
+
+    return `ALTER TABLE ${this.tableName} ${[columnDefs, indexDefs, foreignDefs]
+      .filter(Boolean)
+      .join(", ")}`;
+  }
+
   private toCreateSQL(): string {
     const columnDefs = this.columns
       .map((col) => this.columnToSQL(col))
@@ -181,26 +229,6 @@ export class Blueprint {
     return sql;
   }
 
-  private toAlterSQL(): string {
-    const alterColumns = this.columns
-      .map((col) => `ADD ${this.columnToSQL(col)}`)
-      .join(", ");
-    const alterIndexes = this.indexes
-      .map((idx) => `ADD ${this.indexToSQL(idx)}`)
-      .join(", ");
-    const alterForeigns = this.foreignKeys
-      .map((fk) => `ADD ${this.foreignKeyToSQL(fk)}`)
-      .join(", ");
-
-    return `ALTER TABLE ${this.tableName} ${[
-      alterColumns,
-      alterIndexes,
-      alterForeigns,
-    ]
-      .filter(Boolean)
-      .join(", ")}`;
-  }
-
   private columnToSQL(column: ColumnDefinition): string {
     const parts = [`${column.name} ${column.type}`];
     if (column.length) parts.push(`(${column.length})`);
@@ -208,21 +236,15 @@ export class Blueprint {
     if (column.autoIncrement) parts.push("AUTO_INCREMENT");
     if (column.primary) parts.push("PRIMARY KEY");
     parts.push(column.nullable ? "NULL" : "NOT NULL");
-    if (column.default !== undefined) parts.push(`DEFAULT '${column.default}'`);
+    if (column.default !== undefined) parts.push(`DEFAULT ${column.default}`);
     return parts.join(" ");
   }
 
   private indexToSQL(index: IndexDefinition): string {
-    return `${
-      index.type === "PRIMARY" ? "PRIMARY KEY" : `${index.type} INDEX`
-    } (${index.columns.join(", ")})`;
+    return `${index.type} (${index.columns.join(", ")})`;
   }
 
   private foreignKeyToSQL(fk: ForeignKeyDefinition): string {
-    return (
-      `FOREIGN KEY (${fk.column}) REFERENCES ${fk.on}(${fk.references})` +
-      (fk.onDelete ? ` ON DELETE ${fk.onDelete}` : "") +
-      (fk.onUpdate ? ` ON UPDATE ${fk.onUpdate}` : "")
-    );
+    return `FOREIGN KEY (${fk.column}) REFERENCES ${fk.on}(${fk.references})`;
   }
 }

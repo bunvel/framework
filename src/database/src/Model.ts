@@ -14,9 +14,9 @@ export class Model {
   private static selectedColumns: string[] = ["*"];
 
   private static async initializeQueryBuilder() {
-    if (!Model.queryBuilder) {
+    if (!this.queryBuilder) {
       try {
-        Model.queryBuilder = await DB.qb;
+        this.queryBuilder = await DB.qb;
       } catch (error) {
         console.error("Error initializing query builder:", error);
         throw error;
@@ -25,23 +25,18 @@ export class Model {
   }
 
   public assign(data: Record<string, any>) {
-    console.log(Model.tableName);
-    console.log(Model.fillable);
-    for (const key of Model.fillable) {
-      console.log(key, data[key]);
-
-      if (!Model.guarded.includes(key) && key in data) {
+    const { fillable, guarded } = this.constructor as typeof Model;
+    for (const key of fillable) {
+      if (!guarded.includes(key) && key in data) {
         this.attributes[key] = data[key];
-        console.log(this.attributes);
       }
     }
   }
 
   public toJSON() {
+    const { hidden } = this.constructor as typeof Model;
     return Object.fromEntries(
-      Object.entries(this.attributes).filter(
-        ([key]) => !Model.hidden.includes(key)
-      )
+      Object.entries(this.attributes).filter(([key]) => !hidden.includes(key))
     );
   }
 
@@ -60,22 +55,27 @@ export class Model {
     return instance;
   }
 
-  public static async insert(data: Record<string, any>): Promise<void> {
+  public static async insert(
+    data: Record<string, any> | Record<string, any>[]
+  ): Promise<void> {
     await this.initializeQueryBuilder();
 
-    await this.queryBuilder!.table(this.tableName).insert(data);
+    if (Array.isArray(data)) {
+      await this.queryBuilder!.table(this.tableName).insert(data);
+    } else {
+      await this.queryBuilder!.table(this.tableName).insert([data]);
+    }
   }
 
   public async update(data: Record<string, any>): Promise<this> {
-    await Model.initializeQueryBuilder();
+    await (this.constructor as typeof Model).initializeQueryBuilder();
     this.assign(data);
 
     const updateData = { ...this.attributes };
     delete updateData.id;
 
-    await Model.queryBuilder!.table(
-      (this.constructor as typeof Model).tableName
-    )
+    await (this.constructor as typeof Model)
+      .queryBuilder!.table((this.constructor as typeof Model).tableName)
       .where("id", "=", this.attributes.id)
       .update(updateData);
 
@@ -83,10 +83,9 @@ export class Model {
   }
 
   public async delete(): Promise<void> {
-    await Model.initializeQueryBuilder();
-    await Model.queryBuilder!.table(
-      (this.constructor as typeof Model).tableName
-    )
+    await (this.constructor as typeof Model).initializeQueryBuilder();
+    await (this.constructor as typeof Model)
+      .queryBuilder!.table((this.constructor as typeof Model).tableName)
       .where("id", "=", this.attributes.id)
       .delete();
   }
@@ -117,7 +116,6 @@ export class Model {
   public static async all(): Promise<Model[]> {
     await this.initializeQueryBuilder();
 
-    console.log(this.tableName);
     const results = await this.queryBuilder!.table(this.tableName)
       .select(this.selectedColumns)
       .get();
@@ -145,25 +143,5 @@ export class Model {
     }
 
     return null;
-  }
-
-  public belongsTo(RelatedModel: typeof Model, foreignKey: string) {
-    return { type: "belongsTo", model: RelatedModel, foreignKey };
-  }
-
-  public hasOne(RelatedModel: typeof Model, foreignKey: string) {
-    return { type: "hasOne", model: RelatedModel, foreignKey };
-  }
-
-  public hasMany(RelatedModel: typeof Model, foreignKey: string) {
-    return { type: "hasMany", model: RelatedModel, foreignKey };
-  }
-
-  public getAttribute(key: string) {
-    return this.attributes[key];
-  }
-
-  public setAttribute(key: string, value: any) {
-    this.attributes[key] = value;
   }
 }

@@ -2,7 +2,7 @@ import { Logger } from "@bunvel/log";
 import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Command } from "../command";
+import { Command, type CommandArgs } from "../command";
 import MakeControllerCommand from "./MakeControllerCommand";
 import MakeMigrationCommand from "./MakeMigrationCommand";
 
@@ -18,7 +18,7 @@ class MakeModelCommand extends Command {
     this.option("migration", "Generate a migration file for the model", "m");
   }
 
-  async handle(args: any = {}): Promise<void> {
+  async handle(args: CommandArgs): Promise<void> {
     const { positionals = [], options = {} } = args;
 
     if (positionals.length === 0) {

@@ -2,7 +2,7 @@ import { Logger } from "@bunvel/log";
 import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Command } from "../command";
+import { Command, type CommandArgs } from "../command";
 
 class MakeMiddlewareCommand extends Command {
   constructor() {
@@ -10,10 +10,7 @@ class MakeMiddlewareCommand extends Command {
   }
 
   // Handle arguments and middleware creation
-  async handle(args: {
-    positionals: string[];
-    options: Record<string, any>;
-  }): Promise<void> {
+  async handle(args: CommandArgs): Promise<void> {
     const { positionals } = args;
 
     // Check if middleware name is provided
