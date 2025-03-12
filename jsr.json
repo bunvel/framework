@@ -1,5 +1,5 @@
 {
-    "name": "@bunvel/bunvel",
+    "name": "@bunvel/framework",
     "version": "0.10.0",
     "license": "MIT",
     "exports": "./src/index.ts"
