@@ -1,4 +1,4 @@
-import { DB } from "@bunvel/facade";
+import { DB } from "../../facade";
 import type { QueryBuilder } from "./query-builder/QueryBuilder";
 
 export class Model {
@@ -33,7 +33,7 @@ export class Model {
     }
   }
 
-  public toJSON() {
+  public toJSON(): Record<string, any> {
     const { hidden } = this.constructor as typeof Model;
     return Object.fromEntries(
       Object.entries(this.attributes).filter(([key]) => !hidden.includes(key))

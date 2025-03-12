@@ -1,13 +1,13 @@
-import { ConfigurationService } from "@bunvel/config";
-import { Application } from "@bunvel/core";
+import { ConfigRepository } from "../../config";
+import { Application } from "../../core";
 
 export class Config {
-  private static configService: ConfigurationService;
+  private static configService: ConfigRepository;
 
   // Initialize the ConfigurationService and load configs
   private static async initialize(): Promise<void> {
     const app = Application.getInstance();
-    Config.configService = await app.make<ConfigurationService>("config");
+    Config.configService = await app.make<ConfigRepository>("config");
   }
 
   // Retrieve configuration value
@@ -20,7 +20,7 @@ export class Config {
   }
 
   // Retrieve string value
-  static async string(key: string, defaultValue: number = 0): Promise<string> {
+  static async string(key: string, defaultValue: string = ""): Promise<string> {
     await Config.initialize();
     return Config.configService.string(key, defaultValue);
   }

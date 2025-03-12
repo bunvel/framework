@@ -1,5 +1,5 @@
-import { Logger } from "@bunvel/log";
 import type { Context } from "hono";
+import { Logger } from "../../log";
 
 const getConsoleWidth = (): number => {
   return process.stdout.columns + 5 || 120;

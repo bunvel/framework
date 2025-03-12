@@ -1,4 +1,4 @@
-import { Logger } from "@bunvel/log";
+import { Logger } from "../../../log";
 import type { ConnectionConfig, Database } from "../interfaces";
 
 export class MySQLAdapter implements Database {

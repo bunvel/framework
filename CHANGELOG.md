@@ -1,5 +1,11 @@
 # @bunvel/framework
 
+## 0.10.0
+
+### Minor Changes
+
+- Improved imports
+
 ## 0.9.0
 
 ### Minor Changes

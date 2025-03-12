@@ -1,5 +1,11 @@
 import { type Context, Hono, type MiddlewareHandler } from "hono";
-import type { Controller, HttpMethod, RouteHandler } from "./types";
+import { RouterLoggerMiddleware } from "./RouterMiddleware";
+import type {
+  ApiResourceMethod,
+  Controller,
+  HttpMethod,
+  RouteHandler,
+} from "./types";
 
 export class RouterService {
   private router: Hono;
@@ -57,10 +63,12 @@ export class RouterService {
     handler: RouteHandler,
     middlewares: MiddlewareHandler[] = []
   ): void {
+    const isProd = Bun.env.APP_ENV === "production";
+
     const finalMiddlewares = [
       ...this.globalMiddleware,
       ...middlewares,
-      // RouterLoggerMiddleware,
+      ...(isProd ? [] : [RouterLoggerMiddleware]),
     ];
     this.router[method](path, ...finalMiddlewares, async (c: Context) => {
       const response = await handler(c);
@@ -135,10 +143,10 @@ export class RouterService {
   public apiResource(
     path: string,
     controller: Controller,
-    options: { only?: string[]; except?: string[] } = {},
+    options: { only?: ApiResourceMethod[]; except?: ApiResourceMethod[] } = {},
     middlewares: MiddlewareHandler[] = []
   ): this {
-    const methods: [HttpMethod, string, string][] = [
+    const methods: [HttpMethod, string, ApiResourceMethod][] = [
       ["get", "", "index"],
       ["post", "", "store"],
       ["get", "/:id", "show"],
@@ -153,15 +161,15 @@ export class RouterService {
   private addControllerRoutes(
     path: string,
     controller: Controller,
-    methods: [HttpMethod, string, string][],
-    options: { only?: string[]; except?: string[] },
+    methods: [HttpMethod, string, ApiResourceMethod][],
+    options: { only?: ApiResourceMethod[]; except?: ApiResourceMethod[] },
     middlewares: MiddlewareHandler[] = []
   ): void {
     methods.forEach(([method, suffix, action]) => {
       if (
         typeof controller[action] === "function" &&
-        (!options.only || options.only.includes(action)) &&
-        (!options.except || !options.except.includes(action))
+        (!options.only || new Set(options.only).has(action)) &&
+        (!options.except || !new Set(options.except).has(action))
       ) {
         this.addRoute(
           method,

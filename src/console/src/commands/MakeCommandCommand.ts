@@ -1,7 +1,7 @@
-import { Logger } from "@bunvel/log";
-import Str from "@bunvel/support/Str";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import { Logger } from "../../../log";
+import Str from "../../../support/Str";
 import { Command, type CommandArgs } from "../command";
 
 class MakeCommandCommand extends Command {

@@ -1,14 +1,14 @@
-import { ConfigurationService } from "@bunvel/config";
-import { Logger } from "@bunvel/log";
+import { ConfigRepository } from "../../../config";
+import { Logger } from "../../../log";
 import { CLIFormatter } from "../cli_formatter";
 import { Command, type CommandArgs } from "../command";
 
 class ConfigShowCommand extends Command {
-  private configService: ConfigurationService;
+  private configService: ConfigRepository;
 
   constructor() {
     super("config:show", "Show the configuration for the specified file");
-    this.configService = new ConfigurationService();
+    this.configService = new ConfigRepository();
   }
 
   async handle(args: CommandArgs): Promise<void> {
@@ -32,7 +32,7 @@ class ConfigShowCommand extends Command {
       }
 
       // Load the configuration file using the ConfigurationService
-      await this.configService.loadConfigs();
+      await this.configService.load();
 
       // Retrieve and display the configuration data
       const configData = this.configService.get(fileName);

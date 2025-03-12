@@ -1,6 +1,6 @@
-import { Logger } from "@bunvel/log";
 import { ServiceProvider } from "../../core/src/ServiceProvider";
 import { Config } from "../../facade/src/Config";
+import { Logger } from "../../log";
 import { DatabaseAdapterFactory } from "./DatabaseFactory";
 import type { ConnectionConfig, Database } from "./interfaces";
 import { isValidDatabase } from "./types";

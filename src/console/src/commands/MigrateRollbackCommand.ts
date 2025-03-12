@@ -1,14 +1,14 @@
-import { Application } from "@bunvel/core";
 import { join, resolve } from "path";
+import { Application } from "../../../core";
 
-import { ConfigServiceProvider } from "@bunvel/config";
+import { ConfigServiceProvider } from "../../../config";
 import {
   type Database,
   DatabaseServiceProvider,
   Migration,
   Schema,
-} from "@bunvel/database";
-import { Logger } from "@bunvel/log";
+} from "../../../database";
+import { Logger } from "../../../log";
 import { Command } from "../command";
 
 class MigrateRollbackCommand extends Command {

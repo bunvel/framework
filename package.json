@@ -1,6 +1,6 @@
 {
   "name": "@bunvel/framework",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Bunvel - Bun framework inspired by Laravel",
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -21,7 +21,7 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "test": "bun test",
-    "changeset": "bunx changeset && bunx changeset version && git add . && git commit -m 'chore: release 0.9.0' && git push",
+    "changeset": "bunx changeset && bunx changeset version && git add . && git commit -m 'chore: release 0.10.0' && git push",
     "release": "bun publish --access public"
   },
   "exports": {
@@ -44,6 +44,6 @@
     "typescript": "^5.8.2"
   },
   "engines": {
-    "bun": ">=1.2.0"
+    "bun": ">=1.2.5"
   }
 }

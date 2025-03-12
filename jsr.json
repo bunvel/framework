@@ -1,0 +1,6 @@
+{
+    "name": "@bunvel/bunvel",
+    "version": "0.10.0",
+    "license": "MIT",
+    "exports": "./src/index.ts"
+  }

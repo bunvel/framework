@@ -1,12 +1,16 @@
-import { appPath } from "@bunvel/support/helpers";
 import { existsSync, readdirSync } from "fs";
 import { join } from "path";
+import { appPath } from "../../support/helpers";
 import type { Command } from "./command";
 
 export class CommandLoader {
+  private static commandCache: Map<string, Command> | null = null;
+
   static async loadCommands(
     frameworkPath: string
   ): Promise<Map<string, Command>> {
+    if (this.commandCache) return this.commandCache;
+
     const commands = new Map<string, Command>();
 
     await this.loadCommandsFromDirectory(
@@ -19,7 +23,13 @@ export class CommandLoader {
       await this.loadCommandsFromDirectory(userCommandPath, commands);
     }
 
+    this.commandCache = commands; // Cache the loaded commands
+
     return commands;
+  }
+
+  static clearCache() {
+    this.commandCache = null; // Allow cache invalidation
   }
 
   private static async loadCommandsFromDirectory(

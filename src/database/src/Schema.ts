@@ -8,7 +8,7 @@ export class Schema {
     tableName: string,
     callback: (table: Blueprint) => void
   ): Promise<void> {
-    const blueprint = new Blueprint(tableName);
+    const blueprint = new Blueprint(tableName, this.adapter.driver);
     callback(blueprint);
     const sql = blueprint.toSQL();
     await this.adapter.query(sql);
@@ -18,7 +18,7 @@ export class Schema {
     tableName: string,
     callback: (table: Blueprint) => void
   ): Promise<void> {
-    const blueprint = new Blueprint(tableName, true);
+    const blueprint = new Blueprint(tableName, this.adapter.driver, true);
     callback(blueprint);
     const sql = blueprint.toSQL();
     await this.adapter.query(sql);

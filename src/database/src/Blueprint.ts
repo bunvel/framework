@@ -1,3 +1,5 @@
+import type { SupportedDatabase } from "./types";
+
 interface ColumnDefinition {
   name: string;
   type: string;
@@ -59,7 +61,11 @@ export class Blueprint {
   private indexes: IndexDefinition[] = [];
   private foreignKeys: ForeignKeyDefinition[] = [];
 
-  constructor(private tableName: string, private isAlter = false) {}
+  constructor(
+    private tableName: string,
+    private dbType: SupportedDatabase,
+    private isAlter = false
+  ) {}
 
   private addColumn(column: ColumnDefinition): this {
     this.columns.push(column);
@@ -69,20 +75,20 @@ export class Blueprint {
   increments(name: string): this {
     return this.addColumn({
       name,
-      type: "INTEGER",
+      type: this.dbType === "mysql" ? "INTEGER" : "SERIAL",
       autoIncrement: true,
       primary: true,
-      unsigned: true,
+      unsigned: this.dbType === "mysql",
     });
   }
 
   bigIncrements(name: string): this {
     return this.addColumn({
       name,
-      type: "BIGINT",
+      type: this.dbType === "mysql" ? "BIGINT" : "BIGSERIAL",
       autoIncrement: true,
       primary: true,
-      unsigned: true,
+      unsigned: this.dbType === "mysql",
     });
   }
 
@@ -94,18 +100,6 @@ export class Blueprint {
     return this.addColumn({ name, type: "BIGINT" });
   }
 
-  smallInteger(name: string): this {
-    return this.addColumn({ name, type: "SMALLINT" });
-  }
-
-  float(name: string): this {
-    return this.addColumn({ name, type: "FLOAT" });
-  }
-
-  double(name: string): this {
-    return this.addColumn({ name, type: "DOUBLE" });
-  }
-
   string(name: string, length = 255): this {
     return this.addColumn({ name, type: "VARCHAR", length });
   }
@@ -115,23 +109,17 @@ export class Blueprint {
   }
 
   boolean(name: string): this {
-    return this.addColumn({ name, type: "BOOLEAN" });
+    return this.addColumn({
+      name,
+      type: this.dbType === "mysql" ? "TINYINT(1)" : "BOOLEAN",
+    });
   }
 
   json(name: string): this {
-    return this.addColumn({ name, type: "JSON" });
-  }
-
-  jsonb(name: string): this {
-    return this.addColumn({ name, type: "JSONB" });
-  }
-
-  date(name: string): this {
-    return this.addColumn({ name, type: "DATE" });
-  }
-
-  dateTime(name: string): this {
-    return this.addColumn({ name, type: "DATETIME" });
+    return this.addColumn({
+      name,
+      type: this.dbType === "mysql" ? "JSON" : "JSONB",
+    });
   }
 
   timestamp(name: string, useCurrent = false): this {
@@ -164,14 +152,6 @@ export class Blueprint {
     return this;
   }
 
-  index(columns: string | string[]): this {
-    this.indexes.push({
-      type: "INDEX",
-      columns: Array.isArray(columns) ? columns : [columns],
-    });
-    return this;
-  }
-
   foreign(column: string): ForeignKeyBuilder {
     const builder = new ForeignKeyBuilder(column);
     this.foreignKeys.push(builder.build());
@@ -198,16 +178,7 @@ export class Blueprint {
     const columnDefs = this.columns
       .map((col) => `ADD ${this.columnToSQL(col)}`)
       .join(", ");
-    const indexDefs = this.indexes
-      .map((idx) => `ADD ${this.indexToSQL(idx)}`)
-      .join(", ");
-    const foreignDefs = this.foreignKeys
-      .map((fk) => `ADD ${this.foreignKeyToSQL(fk)}`)
-      .join(", ");
-
-    return `ALTER TABLE ${this.tableName} ${[columnDefs, indexDefs, foreignDefs]
-      .filter(Boolean)
-      .join(", ")}`;
+    return `ALTER TABLE ${this.tableName} ${columnDefs}`;
   }
 
   private toCreateSQL(): string {
@@ -232,9 +203,8 @@ export class Blueprint {
   private columnToSQL(column: ColumnDefinition): string {
     const parts = [`${column.name} ${column.type}`];
     if (column.length) parts.push(`(${column.length})`);
-    if (column.unsigned) parts.push("UNSIGNED");
-    if (column.autoIncrement) parts.push("AUTO_INCREMENT");
-    if (column.primary) parts.push("PRIMARY KEY");
+    if (column.autoIncrement && this.dbType === "mysql")
+      parts.push("AUTO_INCREMENT");
     parts.push(column.nullable ? "NULL" : "NOT NULL");
     if (column.default !== undefined) parts.push(`DEFAULT ${column.default}`);
     return parts.join(" ");

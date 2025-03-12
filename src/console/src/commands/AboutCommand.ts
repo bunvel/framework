@@ -1,5 +1,5 @@
-import { Logger } from "@bunvel/log";
 import path from "path";
+import { Logger } from "../../../log";
 import { CLIFormatter } from "../cli_formatter";
 import { Command } from "../command";
 

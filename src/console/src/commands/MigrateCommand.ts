@@ -1,15 +1,15 @@
-import { ConfigServiceProvider } from "@bunvel/config";
-import { Application } from "@bunvel/core";
-import { Config } from "@bunvel/facade";
-import { Logger } from "@bunvel/log";
 import { readdirSync } from "fs";
 import { join, resolve } from "path";
+import { ConfigServiceProvider } from "../../../config";
+import { Application } from "../../../core";
 import {
   type Database,
   DatabaseServiceProvider,
   Migration,
   Schema,
 } from "../../../database";
+import { Config } from "../../../facade";
+import { Logger } from "../../../log";
 import { Command } from "../command";
 
 class MigrateCommand extends Command {

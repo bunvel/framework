@@ -1,6 +1,6 @@
-import { DatabaseAdapterFactory, type Database } from "@bunvel/database";
-import type { QueryBuilder } from "@bunvel/database/src/query-builder/QueryBuilder";
 import { Application } from "../../core/src/Application";
+import type { QueryBuilder } from "../../database";
+import { DatabaseAdapterFactory, type Database } from "../../database";
 
 export class DB {
   /**
