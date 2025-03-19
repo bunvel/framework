@@ -86,19 +86,26 @@ class MigrateCommand extends Command {
   ): Promise<void> {
     const database = await Config.get("database.default");
 
-    const sql =
-      database == "postgresql"
-        ? `
-      INSERT INTO migrations (migration, batch)
-      VALUES ($1, $2)
-      ON CONFLICT (migration) 
-      DO UPDATE SET batch = EXCLUDED.batch;
-    `
-        : `
-      INSERT INTO migrations (migration, batch)
-      VALUES (?, ?)
-      ON DUPLICATE KEY UPDATE batch = VALUES(batch);
-    `;
+    let sql;
+    if (database === "postgresql") {
+      sql = `
+        INSERT INTO migrations (migration, batch)
+        VALUES ($1, $2)
+        ON CONFLICT (migration) 
+        DO UPDATE SET batch = EXCLUDED.batch;
+      `;
+    } else if (database === "sqlite") {
+      sql = `
+        INSERT OR REPLACE INTO migrations (migration, batch)
+        VALUES (?, ?);
+      `;
+    } else {
+      sql = `
+        INSERT INTO migrations (migration, batch)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE batch = VALUES(batch);
+      `;
+    }
 
     await this.connection!.query(sql, [migrationFile, batchNumber]);
   }

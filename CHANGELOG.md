@@ -1,5 +1,11 @@
 # @bunvel/framework
 
+## 0.11.0
+
+### Minor Changes
+
+- Fixed migration commands
+
 ## 0.10.0
 
 ### Minor Changes

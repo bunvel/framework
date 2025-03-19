@@ -1,3 +1,4 @@
+import { databasePath } from "@bunvel/support";
 import { Logger } from "../../../log";
 import type { ConnectionConfig, Database } from "../interfaces";
 
@@ -13,7 +14,7 @@ export class SQLiteAdapter implements Database {
 
     try {
       const { Database } = await import("bun:sqlite");
-      this.db = new Database(config.database);
+      this.db = new Database(`${databasePath()}/${config.database}.sqlite`);
     } catch (error: any) {
       Logger.error(`SQLite connection failed: ${error.message}`);
       throw new Error("Failed to establish a SQLite connection.");
