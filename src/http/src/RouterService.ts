@@ -8,14 +8,26 @@ import type {
 } from "./types";
 
 export class RouterService {
+  private static instance: RouterService;
   private router: Hono;
   private routeNames: Map<string, string>;
   private globalMiddleware: MiddlewareHandler[];
 
-  constructor(router: Hono) {
-    this.router = router;
+  constructor() {
+    this.router = new Hono();
     this.routeNames = new Map<string, string>();
     this.globalMiddleware = [];
+  }
+
+  public static getInstance(): RouterService {
+    if (!RouterService.instance) {
+      RouterService.instance = new RouterService();
+    }
+    return RouterService.instance;
+  }
+
+  public getRouter(): Hono {
+    return this.router;
   }
 
   private handleResponse(c: Context, response: any): Response {
@@ -185,7 +197,7 @@ export class RouterService {
     options: { prefix?: string; middleware?: MiddlewareHandler[] },
     callback: (router: RouterService) => void
   ): void {
-    const groupRouter = new RouterService(new Hono());
+    const groupRouter = new RouterService();
 
     // Apply middleware and prefix
     if (options.middleware) {
@@ -212,9 +224,5 @@ export class RouterService {
   public middleware(...middlewares: MiddlewareHandler[]): this {
     this.use(middlewares);
     return this;
-  }
-
-  public getRouter(): Hono {
-    return this.router;
   }
 }

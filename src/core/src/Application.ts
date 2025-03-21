@@ -14,7 +14,7 @@ export class Application {
   private instances: Map<string, any> = new Map();
   private bindings: Map<string, ServiceConstructor<any>> = new Map();
   private singletons: Map<string, ServiceConstructor<any>> = new Map();
-  private booted: boolean = false;
+  public booted: boolean = false;
 
   static getInstance(): Application {
     if (!Application.instance) {

@@ -1,11 +1,11 @@
-import {Command} from "@bunvel/framework";
+import {Command, type CommandArgs} from "@bunvel/framework";
 
 export default class {{commandName}}Command extends Command {
   constructor() {
     super("{{commandName}}", "Description of the command");
   }
 
-  async handle(args: any = {}): Promise<void> {
+  async handle(args: CommandArgs): Promise<void> {
     // Implement command logic here
   }
 }

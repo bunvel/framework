@@ -1,5 +1,5 @@
-import { databasePath } from "@bunvel/support";
 import { Logger } from "../../../log";
+import { databasePath } from "../../../support";
 import type { ConnectionConfig, Database } from "../interfaces";
 
 export class SQLiteAdapter implements Database {

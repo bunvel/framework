@@ -10,23 +10,23 @@ export default class {{name}} extends Controller {
     throw new Error("Method not implemented.");
   }
 
-  static async create({ req }: Context) {
+  static async create({ body }: Context) {
     throw new Error("Method not implemented.");
   }
 
-  static async store({ req }: Context) {
+  static async store({ body }: Context) {
     throw new Error("Method not implemented.");
   }
 
-  static async edit({ req }: Context) {
+  static async edit({ req, body }: Context) {
     throw new Error("Method not implemented.");
   }
 
-  static async update({req}:Context) {
+  static async update({ req, body }: Context) {
     throw new Error("Method not implemented.");
   }
 
-  static async destroy({req}:Context) {
+  static async destroy({ req }: Context) {
     throw new Error("Method not implemented.");
   }
 }
