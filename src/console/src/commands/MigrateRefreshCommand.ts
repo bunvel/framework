@@ -1,15 +1,10 @@
 import { join, resolve } from "path";
-import { Application } from "../../../core";
 
-import { ConfigServiceProvider } from "../../../config";
-import {
-  type Database,
-  DatabaseServiceProvider,
-  Migration,
-  Schema,
-} from "../../../database";
+import { type Database, Migration, Schema } from "../../../database";
 import { Logger } from "../../../log";
+import { databasePath } from "../../../support";
 import { Command } from "../command";
+import { connectToDatabase } from "../utils/database_helper";
 import MigrateCommand from "./MigrateCommand";
 
 class MigrateRefreshCommand extends Command {
@@ -20,7 +15,7 @@ class MigrateRefreshCommand extends Command {
   }
 
   async handle(): Promise<void> {
-    this.connection = await this.connectToDatabase();
+    this.connection = await connectToDatabase();
     if (!this.connection) {
       Logger.error("Failed to connect to the database.");
       return;
@@ -86,7 +81,7 @@ class MigrateRefreshCommand extends Command {
   }
 
   private async loadMigrationClass(file: string): Promise<any> {
-    const migrationsDir = join(process.cwd(), "database", "migrations");
+    const migrationsDir = databasePath("migrations");
     const filePath = resolve(join(migrationsDir, file));
 
     try {
@@ -110,18 +105,6 @@ class MigrateRefreshCommand extends Command {
     await this.connection!.query("DELETE FROM migrations WHERE migration = ?", [
       migrationFile,
     ]);
-  }
-
-  private async connectToDatabase(): Promise<Database | null> {
-    try {
-      const app = Application.getInstance();
-      await app.register([ConfigServiceProvider, DatabaseServiceProvider]);
-      await app.boot();
-      return await app.make<Database>("database");
-    } catch (error: any) {
-      Logger.error("Database connection failed:", error);
-      return null;
-    }
   }
 }
 

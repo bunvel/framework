@@ -1,5 +1,5 @@
-import path from "path";
 import { Logger } from "../../../log";
+import { basePath } from "../../../support";
 import { CLIFormatter } from "../cli_formatter";
 import { Command } from "../command";
 
@@ -41,7 +41,7 @@ class AboutCommand extends Command {
 
   async getPackageVersion(): Promise<string> {
     try {
-      const packageJsonPath = path.resolve(process.cwd(), "package.json");
+      const packageJsonPath = basePath("package.json");
       const packageJson = await Bun.file(packageJsonPath).json();
       return packageJson.version || "Unknown";
     } catch (error) {

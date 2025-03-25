@@ -1,12 +1,11 @@
 import Table from "cli-table3";
 import { readdirSync } from "fs";
-import { join } from "path";
-import { Application } from "../../../core";
 
-import { type Database, DatabaseServiceProvider } from "@bunvel/database";
+import { type Database } from "@bunvel/database";
 import { Logger } from "@bunvel/log";
-import { ConfigServiceProvider } from "../../../config";
+import { databasePath } from "@bunvel/support";
 import { Command } from "../command";
+import { connectToDatabase } from "../utils/database_helper";
 
 class MigrateStatusCommand extends Command {
   constructor() {
@@ -14,15 +13,14 @@ class MigrateStatusCommand extends Command {
   }
 
   async handle(): Promise<void> {
-    const connection = await this.connectToDatabase();
+    const connection = await connectToDatabase();
     if (!connection) {
       Logger.error("Failed to connect to the database.");
       return;
     }
 
     try {
-      const migrationsDir = join(process.cwd(), "database", "migrations");
-      const migrationFiles = this.getMigrationFiles(migrationsDir);
+      const migrationFiles = this.getMigrationFiles(databasePath("migrations"));
       const executedMigrations = await this.getExecutedMigrations(connection);
 
       const migrationStatus = this.getMigrationStatus(
@@ -36,18 +34,6 @@ class MigrateStatusCommand extends Command {
       this.printMigrationStatus(migrationStatus);
     } catch (error: any) {
       Logger.error("Error fetching migration status:", error);
-    }
-  }
-
-  private async connectToDatabase(): Promise<Database | null> {
-    try {
-      const app = Application.getInstance();
-      await app.register([ConfigServiceProvider, DatabaseServiceProvider]);
-      await app.boot();
-      return await app.make<Database>("database");
-    } catch (error: any) {
-      Logger.error("Database connection failed:", error);
-      return null;
     }
   }
 

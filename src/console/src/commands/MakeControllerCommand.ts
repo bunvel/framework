@@ -1,8 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../log";
+import { appPath } from "../../../support";
 import Str from "../../../support/Str";
 import { Command, type CommandArgs } from "../command";
+import { createFile } from "../utils/file_helper";
 
 class MakeControllerCommand extends Command {
   constructor() {
@@ -36,14 +38,13 @@ class MakeControllerCommand extends Command {
       return;
     }
 
-    const controllersDir = join(process.cwd(), "app", "controllers");
+    const controllersDir = appPath("controllers");
     const filePath = join(controllersDir, `${controllerName}.ts`);
 
     const { positionals = [], options = {} } = args;
 
-    const isResourceController =
-      args.options?.resource || positionals[1] == "-r";
-    const isApiController = args.options?.api || positionals[1] == "-api";
+    const isResourceController = options.resource || positionals[1] == "-r";
+    const isApiController = options.api || positionals[1] == "-api";
 
     if (!existsSync(controllersDir)) {
       mkdirSync(controllersDir, { recursive: true });
@@ -55,15 +56,10 @@ class MakeControllerCommand extends Command {
     }
 
     const stubFile = this.getStubFile(isResourceController, isApiController);
-    const stubContent = readFileSync(stubFile, "utf8");
+    const stubContent = await Bun.file(stubFile).text();
     const controllerContent = stubContent.replace(/{{name}}/g, controllerName);
 
-    try {
-      writeFileSync(filePath, controllerContent);
-      Logger.info(`Controller created successfully: [${filePath}]`);
-    } catch (error: any) {
-      Logger.error("Error creating controller:", error);
-    }
+    await createFile("Controller", filePath, controllerContent);
   }
 
   private formatName(name: string): string {

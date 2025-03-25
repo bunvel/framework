@@ -1,8 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../log";
+import { appPath } from "../../../support";
 import Str from "../../../support/Str";
 import { Command, type CommandArgs } from "../command";
+import { createFile } from "../utils/file_helper";
 
 class MakeMiddlewareCommand extends Command {
   constructor() {
@@ -20,8 +22,8 @@ class MakeMiddlewareCommand extends Command {
       return;
     }
 
-    const middlewareName = this.formatName(positionals[0]);
-    const middlewaresDir = join(process.cwd(), "app", "middlewares");
+    const middlewareName = Str.pascalCase(positionals[0]);
+    const middlewaresDir = appPath("middlewares");
     const filePath = join(middlewaresDir, `${middlewareName}Middleware.ts`);
 
     // Ensure middleware directory exists
@@ -35,13 +37,8 @@ class MakeMiddlewareCommand extends Command {
       middlewareName
     );
     if (middlewareContent) {
-      this.createFile(filePath, middlewareContent);
+      await createFile("Middleware", filePath, middlewareContent);
     }
-  }
-
-  // Format the middleware name properly (capitalize first letter)
-  private formatName(name: string): string {
-    return Str.pascalCase(name);
   }
 
   // Get the content of the stub and replace placeholders
@@ -57,16 +54,6 @@ class MakeMiddlewareCommand extends Command {
     } catch (error: any) {
       Logger.error("Error reading the stub file:", error);
       return null;
-    }
-  }
-
-  // Create the middleware file
-  private createFile(filePath: string, content: string): void {
-    try {
-      writeFileSync(filePath, content);
-      Logger.info(`Middleware created successfully: [${filePath}]`);
-    } catch (error: any) {
-      Logger.error("Error creating middleware:", error);
     }
   }
 }

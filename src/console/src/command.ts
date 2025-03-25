@@ -1,56 +1,96 @@
+/**
+ * Represents the parsed command arguments, including positional arguments and options.
+ */
 export interface CommandArgs {
   positionals: string[];
-  options: Record<string, boolean>;
+  options: Record<string, any>;
 }
 
+/**
+ * Abstract base class for creating CLI commands.
+ * Provides functionality for defining command options, parsing arguments, and executing commands.
+ */
 export abstract class Command {
-  protected options: {
-    [key: string]: { description: string; alias?: string };
-  } = {};
+  /**
+   * Stores command options with their descriptions and optional aliases.
+   */
+  protected options: Record<string, { description: string; alias?: string }> =
+    {};
 
+  /**
+   * @param signature The command name or identifier.
+   * @param description A brief description of the command's purpose.
+   * @param aliases Alternative names for the command.
+   */
   constructor(
     protected signature: string,
     protected description: string,
     protected aliases: string[] = []
   ) {}
 
-  // Define command options with aliases and descriptions
+  /**
+   * Defines a new option for the command.
+   *
+   * @param name The option name (e.g., `"verbose"` for `--verbose`).
+   * @param description A brief explanation of what the option does.
+   * @param alias (Optional) A short alias (e.g., `"v"` for `-v`).
+   * @returns The current instance to allow method chaining.
+   */
   option(name: string, description: string, alias?: string): this {
     this.options[name] = { description, alias };
-    return this; // allows chaining
+    return this;
   }
 
-  // Abstract handle method to be implemented by concrete commands
+  /**
+   * Abstract method to be implemented by subclasses.
+   * Defines the command execution logic.
+   *
+   * @param args Parsed command arguments.
+   */
   abstract handle(args: CommandArgs): Promise<void>;
 
-  // Signature getter
+  /**
+   * Gets the command signature (name).
+   * @returns The command signature.
+   */
   getSignature(): string {
     return this.signature;
   }
 
-  // Description getter
+  /**
+   * Gets the command description.
+   * @returns The command description.
+   */
   getDescription(): string {
     return this.description;
   }
 
-  // Aliases getter
+  /**
+   * Gets the list of command aliases.
+   * @returns An array of alias names.
+   */
   getAliases(): string[] {
     return this.aliases;
   }
 
-  // Get options with their descriptions
-  getOptions(): { [key: string]: { description: string; alias?: string } } {
+  /**
+   * Retrieves the available command options along with their descriptions.
+   * @returns A record of option names and their metadata.
+   */
+  getOptions(): Record<string, { description: string; alias?: string }> {
     return this.options;
   }
 
-  // Default help output for each command
+  /**
+   * Generates and returns a help message for the command.
+   *
+   * @returns A formatted string containing command usage details.
+   */
   getHelp(): string {
-    const optionDescriptions = Object.keys(this.options)
-      .map((option) => {
-        const alias = this.options[option].alias
-          ? ` (-${this.options[option].alias})`
-          : "";
-        return `--${option}${alias}: ${this.options[option].description}`;
+    const optionDescriptions = Object.entries(this.options)
+      .map(([name, { description, alias }]) => {
+        const aliasText = alias ? ` (-${alias})` : "";
+        return `--${name}${aliasText}: ${description}`;
       })
       .join("\n");
 
@@ -64,11 +104,13 @@ export abstract class Command {
     `;
   }
 
-  // Parses arguments into positionals and options
-  protected parseArgs(rawArgs: string[]): {
-    positionals: string[];
-    options: Record<string, any>;
-  } {
+  /**
+   * Parses raw command-line arguments into positional arguments and options.
+   *
+   * @param rawArgs An array of command-line arguments.
+   * @returns An object containing `positionals` (non-option arguments) and `options` (key-value pairs).
+   */
+  protected parseArgs(rawArgs: string[]): CommandArgs {
     const positionals: string[] = [];
     const options: Record<string, any> = {};
 
@@ -77,7 +119,7 @@ export abstract class Command {
       const arg = rawArgs[i];
 
       if (arg.startsWith("--")) {
-        // Handle long options
+        // Handle long options (e.g., --verbose or --name=value)
         const optionName = arg.slice(2);
         if (optionName.includes("=")) {
           const [name, value] = optionName.split("=");
@@ -90,7 +132,7 @@ export abstract class Command {
           }
         }
       } else if (arg.startsWith("-")) {
-        // Handle short options
+        // Handle short options (e.g., -v or -n value)
         const aliases = arg.slice(1);
         for (const alias of aliases) {
           const optionName = this.getOptionNameFromAlias(alias);
@@ -113,7 +155,12 @@ export abstract class Command {
     return { positionals, options };
   }
 
-  // Returns option name from alias
+  /**
+   * Retrieves the option name associated with a given alias.
+   *
+   * @param alias The alias character to lookup.
+   * @returns The corresponding option name or `undefined` if not found.
+   */
   private getOptionNameFromAlias(alias: string): string | undefined {
     for (const [option, data] of Object.entries(this.options)) {
       if (data.alias === alias) {
@@ -123,21 +170,13 @@ export abstract class Command {
     return undefined;
   }
 
-  // Common hook before handling a command
-  protected async beforeHandle(): Promise<void> {
-    // To be overridden if needed
-  }
-
-  // Common hook after handling a command
-  protected async afterHandle(): Promise<void> {
-    // To be overridden if needed
-  }
-
-  // Execute the command
+  /**
+   * Executes the command with the provided arguments.
+   *
+   * @param rawArgs Raw command-line arguments.
+   */
   async run(rawArgs: string[]): Promise<void> {
-    await this.beforeHandle();
     const args = this.parseArgs(rawArgs);
     await this.handle(args);
-    await this.afterHandle();
   }
 }

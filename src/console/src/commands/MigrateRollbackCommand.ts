@@ -1,15 +1,10 @@
 import { join, resolve } from "path";
-import { Application } from "../../../core";
 
-import { ConfigServiceProvider } from "../../../config";
-import {
-  type Database,
-  DatabaseServiceProvider,
-  Migration,
-  Schema,
-} from "../../../database";
+import { type Database, Migration, Schema } from "../../../database";
 import { Logger } from "../../../log";
+import { databasePath } from "../../../support";
 import { Command } from "../command";
+import { connectToDatabase } from "../utils/database_helper";
 
 class MigrateRollbackCommand extends Command {
   private connection: Database | null = null;
@@ -19,7 +14,7 @@ class MigrateRollbackCommand extends Command {
   }
 
   async handle(): Promise<void> {
-    this.connection = await this.connectToDatabase();
+    this.connection = await connectToDatabase();
     if (!this.connection) {
       Logger.error("Failed to connect to the database.");
       return;
@@ -64,8 +59,7 @@ class MigrateRollbackCommand extends Command {
   }
 
   private async loadMigrationClass(file: string): Promise<any> {
-    const migrationsDir = join(process.cwd(), "database", "migrations");
-    const filePath = resolve(join(migrationsDir, file));
+    const filePath = resolve(join(databasePath("migrations"), file));
 
     try {
       const module = await import(filePath);
@@ -80,18 +74,6 @@ class MigrateRollbackCommand extends Command {
       return migrationClass;
     } catch (error: any) {
       Logger.error(`Failed to load migration ${file}:`, error);
-      return null;
-    }
-  }
-
-  private async connectToDatabase(): Promise<Database | null> {
-    try {
-      const app = Application.getInstance();
-      await app.register([ConfigServiceProvider, DatabaseServiceProvider]);
-      await app.boot();
-      return await app.make<Database>("database");
-    } catch (error: any) {
-      Logger.error("Database connection failed:", error);
       return null;
     }
   }

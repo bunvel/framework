@@ -36,6 +36,13 @@ export function databasePath(...paths: string[]): string {
 }
 
 /**
+ * Get the path to the `routes` directory.
+ */
+export function routesPath(...paths: string[]): string {
+  return basePath("routes", ...paths);
+}
+
+/**
  * Get the path to the `storage` directory.
  */
 export function storagePath(...paths: string[]): string {

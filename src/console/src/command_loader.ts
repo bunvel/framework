@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "fs";
 import { join } from "path";
-import { appPath } from "../../support/helpers";
+import { appPath } from "../../support";
 import type { Command } from "./command";
 
 export class CommandLoader {

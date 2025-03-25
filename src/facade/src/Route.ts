@@ -1,3 +1,3 @@
 import { RouterService } from "../../http";
 
-export const Route = RouterService.getInstance();
+export const Route: RouterService = RouterService.getInstance();

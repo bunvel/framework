@@ -1,8 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../log";
+import { appPath } from "../../../support";
 import Str from "../../../support/Str";
 import { Command, type CommandArgs } from "../command";
+import { createFile } from "../utils/file_helper";
 
 class MakeCommandCommand extends Command {
   constructor() {
@@ -15,8 +17,8 @@ class MakeCommandCommand extends Command {
       return;
     }
 
-    const commandName = this.formatName(args.positionals[0]);
-    const commandsDir = join(process.cwd(), "app", "commands");
+    const commandName = Str.pascalCase(args.positionals[0]);
+    const commandsDir = appPath("commands");
     const filePath = join(commandsDir, `${commandName}Command.ts`);
 
     if (!existsSync(commandsDir)) {
@@ -29,11 +31,7 @@ class MakeCommandCommand extends Command {
     }
 
     const commandContent = this.getStubContent("command.stub", commandName);
-    this.createFile(filePath, commandContent);
-  }
-
-  private formatName(name: string): string {
-    return Str.pascalCase(name);
+    await createFile("Command", filePath, commandContent);
   }
 
   private getStubContent(stubFileName: string, commandName: string): string {
@@ -41,15 +39,6 @@ class MakeCommandCommand extends Command {
     let content = readFileSync(stubPath, "utf8");
     content = content.replace(/{{commandName}}/g, commandName);
     return content;
-  }
-
-  private createFile(filePath: string, content: string): void {
-    try {
-      writeFileSync(filePath, content);
-      Logger.info(`Command created successfully: [${filePath}]`);
-    } catch (error) {
-      Logger.error(`Error creating command: ${error}`);
-    }
   }
 }
 

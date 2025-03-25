@@ -1,8 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../log";
+import { appPath } from "../../../support";
 import Str from "../../../support/Str";
 import { Command, type CommandArgs } from "../command";
+import { createFile } from "../utils/file_helper";
 import MakeControllerCommand from "./MakeControllerCommand";
 import MakeMigrationCommand from "./MakeMigrationCommand";
 
@@ -34,7 +36,7 @@ class MakeModelCommand extends Command {
     const isResource = options["resource"] || options["r"] || !options["api"];
     const isApi = options["api"];
 
-    const modelsDir = join(process.cwd(), "app", "models");
+    const modelsDir = appPath("models");
     const modelFilePath = join(modelsDir, `${modelName}.ts`);
 
     // Ensure models directory exists
@@ -55,7 +57,7 @@ class MakeModelCommand extends Command {
         modelName,
         tableName
       );
-      this.createFile(modelFilePath, modelContent);
+      await createFile("Model", modelFilePath, modelContent);
     }
 
     // Create migration if requested
@@ -95,16 +97,6 @@ class MakeModelCommand extends Command {
     } catch (error: any) {
       Logger.error(`Error reading the stub file: ${stubFileName}`, error);
       return "";
-    }
-  }
-
-  // Create the model file with content
-  private createFile(filePath: string, content: string): void {
-    try {
-      writeFileSync(filePath, content);
-      Logger.info(`Model created successfully: [${filePath}]`);
-    } catch (error: any) {
-      Logger.error("Error creating model:", error);
     }
   }
 

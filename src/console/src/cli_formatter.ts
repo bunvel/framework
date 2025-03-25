@@ -1,4 +1,11 @@
 export class CLIFormatter {
+  /**
+   * Applies ANSI color and style to text.
+   * @param text - The text to be colored.
+   * @param color - The color name.
+   * @param style - The optional style (bold, underline, etc.).
+   * @returns The formatted string with ANSI escape codes.
+   */
   static colorize(text: string, color: string, style?: string): string {
     const colors: Record<string, string> = {
       reset: "\x1b[0m",
@@ -11,6 +18,7 @@ export class CLIFormatter {
       white: "\x1b[37m",
       gray: "\x1b[90m",
     };
+
     const styles: Record<string, string> = {
       bold: "\x1b[1m",
       dim: "\x1b[2m",
@@ -18,58 +26,80 @@ export class CLIFormatter {
       underline: "\x1b[4m",
     };
 
-    return `${style ? styles[style] : ""}${colors[color]}${text}${
-      colors.reset
-    }`;
+    const styleCode = style ? styles[style] : "";
+    return `${styleCode}${colors[color] || ""}${text}${colors.reset}`;
   }
 
-  static printHeader(text: string) {
+  /**
+   * Prints a formatted header.
+   * @param text - The header text.
+   */
+  static printHeader(text: string): void {
     console.log("\n" + this.colorize(text, "magenta", "bold"));
   }
 
-  static printError(message: string) {
+  /**
+   * Prints an error message in red.
+   * @param message - The error message.
+   */
+  static printError(message: string): void {
     console.error(this.colorize("Error: ", "red", "bold") + message);
   }
 
-  // Recursive formatter with nested key handling
-  static formatOutput = (
-    sections: { [key: string]: any },
+  /**
+   * Formats structured data into a CLI-friendly output.
+   * Supports nested key formatting.
+   * @param sections - The structured data to format.
+   * @param colors - Whether to use colors.
+   * @param space - The padding space for alignment.
+   * @param parentKey - The parent key for nested structures.
+   * @returns A formatted string.
+   */
+  static formatOutput(
+    sections: Record<string, unknown>,
     colors = true,
     space = 80,
     parentKey = ""
-  ): string => {
-    const green = colors ? "\x1b[32m" : "";
-    const yellow = colors ? "\x1b[33m" : "";
-    const red = colors ? "\x1b[31m" : "";
-    const gray = colors ? "\x1b[90m" : "";
-    const reset = colors ? "\x1b[0m" : "";
+  ): string {
+    const colorCodes = {
+      green: colors ? "\x1b[32m" : "",
+      yellow: colors ? "\x1b[33m" : "",
+      red: colors ? "\x1b[31m" : "",
+      gray: colors ? "\x1b[90m" : "",
+      reset: colors ? "\x1b[0m" : "",
+    };
 
-    let output = "";
+    const output: string[] = [];
 
     Object.entries(sections).forEach(([key, value]) => {
-      const fullKey = parentKey ? `${parentKey}-> ${key} ` : `${key} `; // Concatenate parent and child keys
+      const fullKey = parentKey ? `${parentKey}-> ${key}` : key; // Concatenate parent and child keys
 
       if (typeof value === "object" && value !== null) {
-        // Recursive call for nested objects
-        output += this.formatOutput(value, colors, space, fullKey);
+        // Recursively format nested objects
+        output.push(
+          this.formatOutput(
+            value as Record<string, unknown>,
+            colors,
+            space,
+            fullKey
+          )
+        );
       } else {
-        // Format value based on its type (boolean, integer, etc.)
+        // Format value based on type
         const formattedValue =
           typeof value === "boolean"
             ? value
-              ? `${green}true${reset}`
-              : `${red}false${reset}`
+              ? `${colorCodes.green}true${colorCodes.reset}`
+              : `${colorCodes.red}false${colorCodes.reset}`
             : typeof value === "number"
-            ? value
-              ? `${yellow}${value}${reset}`
-              : value
-            : value;
+            ? `${colorCodes.yellow}${value}${colorCodes.reset}`
+            : String(value);
 
-        // Add the formatted output
-        output += `${fullKey.padEnd(space, ".")} ${formattedValue}\n`;
+        // Align output properly
+        output.push(`${fullKey.padEnd(space, ".")} ${formattedValue}`);
       }
     });
 
-    return output;
-  };
+    return output.join("\n");
+  }
 }

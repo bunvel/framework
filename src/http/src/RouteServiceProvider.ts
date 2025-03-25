@@ -1,7 +1,7 @@
-import * as fs from "fs/promises";
-import * as path from "path";
+import { readdir } from "fs/promises";
 import { ServiceProvider } from "../../core";
 import { Route } from "../../facade";
+import { routesPath } from "../../support";
 
 export class RouteServiceProvider extends ServiceProvider {
   public async register(): Promise<void> {
@@ -13,18 +13,22 @@ export class RouteServiceProvider extends ServiceProvider {
   }
 
   protected async loadRoutes(): Promise<void> {
-    const routesPath = path.join(process.cwd(), "routes");
-
     try {
-      const files = await fs.readdir(routesPath);
-      const filteredFiles = files.filter(
+      const files = await readdir(routesPath());
+
+      // Filter only `api.ts` and `web.ts`
+      const routeFiles = files.filter(
         (file) => file === "api.ts" || file === "web.ts"
       );
 
-      for (const file of filteredFiles) {
-        if (file.endsWith(".ts")) {
-          const { default: route } = await import(path.join(routesPath, file));
+      for (const file of routeFiles) {
+        const bunFile = Bun.file(routesPath(file));
+        // Check if file exists
+        if (await bunFile.exists()) {
+          const { default: route } = await import(routesPath(file));
           route(Route);
+        } else {
+          console.warn(`File ${routesPath(file)} does not exist.`);
         }
       }
     } catch (error) {

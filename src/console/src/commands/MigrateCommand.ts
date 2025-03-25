@@ -1,16 +1,14 @@
 import { readdirSync } from "fs";
 import { join, resolve } from "path";
-import { ConfigServiceProvider } from "../../../config";
-import { Application } from "../../../core";
-import {
-  type Database,
-  DatabaseServiceProvider,
-  Migration,
-  Schema,
-} from "../../../database";
+import { type Database, Migration, Schema } from "../../../database";
 import { Config } from "../../../facade";
 import { Logger } from "../../../log";
+import { databasePath } from "../../../support";
 import { Command } from "../command";
+import {
+  connectToDatabase,
+  createMigrationTable,
+} from "../utils/database_helper";
 
 class MigrateCommand extends Command {
   private connection: Database | null = null;
@@ -20,7 +18,7 @@ class MigrateCommand extends Command {
   }
 
   async handle(): Promise<void> {
-    const migrationsDir = join(process.cwd(), "database", "migrations");
+    const migrationsDir = databasePath("migrations");
     const migrationFiles = this.getMigrationFiles(migrationsDir);
 
     if (migrationFiles.length === 0) {
@@ -28,11 +26,13 @@ class MigrateCommand extends Command {
       return;
     }
 
-    this.connection = await this.connectToDatabase();
+    this.connection = await connectToDatabase();
     if (!this.connection) {
       Logger.error("Failed to connect to the database.");
       return;
     }
+
+    await createMigrationTable(this.connection);
 
     const executedMigrations = await this.getExecutedMigrations();
     const currentBatch = await this.getCurrentBatchNumber();
@@ -129,18 +129,6 @@ class MigrateCommand extends Command {
       return migrationClass;
     } catch (error: any) {
       Logger.error(`Failed to load migration ${file}:`, error);
-      return null;
-    }
-  }
-
-  private async connectToDatabase(): Promise<Database | null> {
-    try {
-      const app = Application.getInstance();
-      await app.register([ConfigServiceProvider, DatabaseServiceProvider]);
-      await app.boot();
-      return await app.make<Database>("database");
-    } catch (error: any) {
-      Logger.error("Database connection failed:", error);
       return null;
     }
   }

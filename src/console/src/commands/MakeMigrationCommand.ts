@@ -1,6 +1,7 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../log";
+import { databasePath } from "../../../support";
 import Str from "../../../support/Str";
 import { Command, type CommandArgs } from "../command";
 
@@ -17,7 +18,7 @@ class MakeMigrationCommand extends Command {
       return;
     }
 
-    const migrationsDir = join(process.cwd(), "database", "migrations");
+    const migrationsDir = databasePath("migrations");
 
     if (!existsSync(migrationsDir)) {
       mkdirSync(migrationsDir, { recursive: true });
@@ -35,24 +36,18 @@ class MakeMigrationCommand extends Command {
 
     const tableName = this.getTableName(formattedName);
     const stubFile = this.getStubFile();
-    const content = this.getMigrationContent(stubFile, tableName);
+    const content = await this.getMigrationContent(stubFile, tableName);
 
     try {
-      writeFileSync(filePath, content.trim());
+      await Bun.write(filePath, content.trim());
       Logger.info(`Migration file created: [${migrationsDir}/${fileName}]`);
     } catch (error: any) {
       Logger.error("Error creating migration file:", error);
     }
   }
 
-  private getMigrationName(args: any): string | null {
-    if (Array.isArray(args) && args.length > 0) {
-      return this.formatMigrationName(args[0]);
-    } else if (typeof args === "object" && args !== null) {
-      const { positionals = [], options = {} } = args;
-      if (positionals.length === 0) {
-        return null;
-      }
+  private getMigrationName({ positionals }: CommandArgs): string | null {
+    if (Array.isArray(positionals) && positionals.length > 0) {
       return this.formatMigrationName(positionals[0]);
     } else {
       Logger.error(
@@ -117,8 +112,11 @@ class MakeMigrationCommand extends Command {
     return join(__dirname, "..", "stubs", "migration.stub");
   }
 
-  private getMigrationContent(stubFile: string, tableName: string): string {
-    const stubContent = readFileSync(stubFile, "utf-8");
+  private async getMigrationContent(
+    stubFile: string,
+    tableName: string
+  ): Promise<string> {
+    const stubContent = await Bun.file(stubFile).text();
     return stubContent
       .replace(/{{className}}/g, Str.pascalCase(tableName))
       .replace(/{{tableName}}/g, tableName);

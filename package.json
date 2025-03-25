@@ -1,6 +1,6 @@
 {
   "name": "@bunvel/framework",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Fast. Minimal. Bun-powered framework.",
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -21,7 +21,7 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "test": "bun test",
-    "changeset": "bunx changeset && bunx changeset version && git add . && git commit -m 'chore: release 0.11.0' && git push",
+    "changeset": "bunx changeset && bunx changeset version && git add . && git commit -m 'chore: release 0.13.0' && git push",
     "release": "bun publish --access public"
   },
   "exports": {
@@ -44,6 +44,6 @@
     "typescript": "^5.8.2"
   },
   "engines": {
-    "bun": ">=1.2.5"
+    "bun": ">=1.2.6"
   }
 }

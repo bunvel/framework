@@ -1,9 +1,8 @@
-import { ConfigServiceProvider } from "../../../config";
-import { Application } from "../../../core";
-import { type Database, DatabaseServiceProvider } from "../../../database";
+import { type Database } from "../../../database";
 import { Config } from "../../../facade";
 import { Logger } from "../../../log";
 import { Command } from "../command";
+import { connectToDatabase } from "../utils/database_helper";
 import InstallMigrationCommand from "./InstallMigrationCommand";
 import MigrateCommand from "./MigrateCommand";
 
@@ -15,7 +14,7 @@ class MigrateFreshCommand extends Command {
   }
 
   async handle(): Promise<void> {
-    this.connection = await this.connectToDatabase();
+    this.connection = await connectToDatabase();
     if (!this.connection) {
       Logger.error("Failed to connect to the database.");
       return;
@@ -77,18 +76,6 @@ class MigrateFreshCommand extends Command {
       return result.map((row: any) => Object.values(row)[0]);
     } catch (error) {
       throw new Error("Error getting tables: " + error);
-    }
-  }
-
-  private async connectToDatabase(): Promise<Database | null> {
-    try {
-      const app = Application.getInstance();
-      await app.register([ConfigServiceProvider, DatabaseServiceProvider]);
-      await app.boot();
-      return await app.make<Database>("database");
-    } catch (error: any) {
-      Logger.error("Database connection failed:", error);
-      return null;
     }
   }
 }

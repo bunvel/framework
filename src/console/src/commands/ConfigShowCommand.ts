@@ -1,5 +1,6 @@
 import { ConfigRepository } from "../../../config";
 import { Logger } from "../../../log";
+import { configPath } from "../../../support";
 import { CLIFormatter } from "../cli_formatter";
 import { Command, type CommandArgs } from "../command";
 
@@ -22,11 +23,11 @@ class ConfigShowCommand extends Command {
       fileName = args.positionals[0];
 
       // Resolve the file path
-      const filePath = Bun.file(process.cwd() + `config/${fileName}.ts`);
+      const filePath = Bun.file(configPath(`${fileName}.ts`));
 
       // Check if the file exists
 
-      if (await filePath.exists()) {
+      if (!(await filePath.exists())) {
         Logger.error(`Configuration file '${fileName}' does not exist.`);
         return;
       }
