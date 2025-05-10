@@ -2,7 +2,7 @@ import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../log";
 import { databasePath } from "../../../support";
-import Str from "../../../support/Str";
+import Str from "../../../support/str";
 import { Command, type CommandArgs } from "../command";
 
 class MakeMigrationCommand extends Command {

@@ -1,2 +1,2 @@
 export * from "./helpers";
-export * from "./Str";
+export * from "./str";

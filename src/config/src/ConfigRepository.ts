@@ -67,7 +67,7 @@ export class ConfigRepository {
       (o, i) => (o !== undefined ? o[i] : undefined),
       config
     );
-    return value !== undefined ? value : defaultValue;
+    return value !== undefined ? value : (defaultValue as T);
   }
 
   /**

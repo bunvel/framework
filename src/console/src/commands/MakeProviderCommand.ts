@@ -2,7 +2,7 @@ import { appPath } from "@bunvel/support";
 import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { Logger } from "../../../log";
-import Str from "../../../support/Str";
+import Str from "../../../support/str";
 import { Command, type CommandArgs } from "../command";
 import { createFile } from "../utils/file_helper";
 
